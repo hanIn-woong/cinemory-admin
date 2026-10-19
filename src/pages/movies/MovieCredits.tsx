@@ -30,7 +30,7 @@ export function MovieCredits({ movieId }: { movieId: string | undefined }) {
     <Table.Column<AdminCreditItem>
       key="nameKo"
       title="한글명"
-      render={(_, row) => <NameKoEditor key={row.personId} personId={row.personId ?? 0} nameKo={row.nameKo} />}
+      render={(_, row) => <NameKoEditor key={`${row.personId}:${row.nameKo ?? ''}`} personId={row.personId ?? 0} nameKo={row.nameKo} />}
     />,
   ]
 

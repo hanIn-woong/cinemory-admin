@@ -39,7 +39,13 @@ export default function App() {
               { name: 'persons', list: '/persons', meta: { label: '인물' } },
               { name: 'audit-logs', list: '/audit-logs', meta: { label: '감사 로그' } },
             ]}
-            options={{ syncWithLocation: true, warnWhenUnsavedChanges: false, disableTelemetry: true }}
+            options={{
+              syncWithLocation: true,
+              warnWhenUnsavedChanges: false,
+              disableTelemetry: true,
+              // 낡은 캐시를 먼저 보여 주지 않는다 — 화면을 떠나면 캐시를 비워 재진입 때 항상 서버 값을 받는다(로딩 후 최신)
+              reactQuery: { clientConfig: { defaultOptions: { queries: { gcTime: 0 } } } },
+            }}
           >
             <Routes>
               <Route

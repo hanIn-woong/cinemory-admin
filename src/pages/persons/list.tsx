@@ -45,7 +45,7 @@ export function PersonList() {
         />
         <Table.Column<AdminPersonSummary>
           title="한글명"
-          render={(_, row) => <NameKoEditor key={row.personId} personId={row.personId ?? 0} nameKo={row.nameKo} />}
+          render={(_, row) => <NameKoEditor key={`${row.personId}:${row.nameKo ?? ''}`} personId={row.personId ?? 0} nameKo={row.nameKo} />}
         />
         <Table.Column dataIndex="creditCount" title="출연·연출" width={100} />
       </Table>

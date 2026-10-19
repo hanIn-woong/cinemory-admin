@@ -112,13 +112,14 @@ export function MovieShow() {
                 <Descriptions.Item label="TMDB 제목">{movie.title}</Descriptions.Item>
                 <Descriptions.Item label="한글 제목" span={2}>
                   <TitleKoEditor
+                    key={movie.titleKo ?? ''}   // 서버 값이 바뀌면(재진입·재조회) 입력칸 상태를 새로 시작한다
                     movieId={movie.movieId ?? 0}
                     titleKo={movie.titleKo}
                     onSaved={async (saved) => {
                       setRefreshed(saved)
                       // 방금 한 동작이 "이 대상의 최근 기록"과 영화 목록에 바로 보이게 다시 받는다
                       await invalidate({ resource: 'audit-logs', invalidates: ['list'] })
-                      await invalidate({ resource: 'movies', invalidates: ['list'] })
+                      await invalidate({ resource: 'movies', invalidates: ['list', 'detail'] })
                     }}
                   />
                 </Descriptions.Item>
