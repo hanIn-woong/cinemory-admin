@@ -17,6 +17,7 @@ import { UserList } from './pages/users/list'
 import { UserShow } from './pages/users/show'
 import { MovieList } from './pages/movies/list'
 import { MovieShow } from './pages/movies/show'
+import { AuditLogList } from './pages/audit/list'
 
 dayjs.locale('ko')
 
@@ -34,6 +35,7 @@ export default function App() {
             resources={[
               { name: 'users', list: '/users', show: '/users/show/:id', meta: { label: '회원' } },
               { name: 'movies', list: '/movies', show: '/movies/show/:id', meta: { label: '영화' } },
+              { name: 'audit-logs', list: '/audit-logs', meta: { label: '감사 로그' } },
             ]}
             options={{ syncWithLocation: true, warnWhenUnsavedChanges: false, disableTelemetry: true }}
           >
@@ -55,6 +57,9 @@ export default function App() {
                 <Route path="/movies">
                   <Route index element={<MovieList />} />
                   <Route path="show/:id" element={<MovieShow />} />
+                </Route>
+                <Route path="/audit-logs">
+                  <Route index element={<AuditLogList />} />
                 </Route>
                 <Route path="*" element={<ErrorComponent />} />
               </Route>

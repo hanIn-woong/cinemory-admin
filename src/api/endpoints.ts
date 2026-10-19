@@ -7,6 +7,7 @@ export const endpoints = {
   adminUsers: '/api/admin/users',
   adminUser: (id: string | number) => `/api/admin/users/${id}`,
   adminMovies: '/api/admin/movies',
+  adminAuditLogs: '/api/admin/audit-logs',
   adminMovie: (id: string | number) => `/api/admin/movies/${id}`,
   adminMovieResync: (id: string | number) => `/api/admin/movies/${id}/resync`,
 } as const

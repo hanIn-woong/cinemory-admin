@@ -1106,6 +1106,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/admin/audit-logs": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** 관리자 감사 로그 — 동작·대상·관리자·기간 필터, 최신순 고정 (page 0-based) */
+        get: operations["getAuditLogs"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/collections/{collectionId}/movies/{movieId}": {
         parameters: {
             query?: never;
@@ -2020,6 +2037,38 @@ export interface components {
             userId?: number;
             email?: string;
             nickname?: string;
+        };
+        AdminAuditLogResponse: {
+            /** Format: int64 */
+            id?: number;
+            /** Format: int64 */
+            adminUserId?: number;
+            adminEmail?: string;
+            /** @enum {string} */
+            action?: "USER_LIST_VIEW" | "USER_DETAIL_VIEW" | "MOVIE_RESYNC" | "MOVIE_RESYNC_BATCH" | "MOVIE_SEED_BOX_OFFICE" | "MOVIE_SEED_DISCOVER" | "GENRE_SEED" | "COUNTRY_SEED" | "BOX_OFFICE_SYNC" | "BOX_OFFICE_REMATCH" | "PERSON_NAME_KO_UPDATE";
+            /** @enum {string} */
+            targetType?: "USER" | "MOVIE" | "PERSON";
+            /** Format: int64 */
+            targetId?: number;
+            detail?: {
+                [key: string]: unknown;
+            };
+            ip?: string;
+            /** Format: date-time */
+            createdAt?: string;
+        };
+        PageResponseAdminAuditLogResponse: {
+            content?: components["schemas"]["AdminAuditLogResponse"][];
+            /** Format: int32 */
+            page?: number;
+            /** Format: int32 */
+            size?: number;
+            /** Format: int64 */
+            totalElements?: number;
+            /** Format: int32 */
+            totalPages?: number;
+            first?: boolean;
+            last?: boolean;
         };
     };
     responses: never;
@@ -3676,6 +3725,34 @@ export interface operations {
                 };
                 content: {
                     "*/*": components["schemas"]["AdminMeResponse"];
+                };
+            };
+        };
+    };
+    getAuditLogs: {
+        parameters: {
+            query: {
+                action?: "USER_LIST_VIEW" | "USER_DETAIL_VIEW" | "MOVIE_RESYNC" | "MOVIE_RESYNC_BATCH" | "MOVIE_SEED_BOX_OFFICE" | "MOVIE_SEED_DISCOVER" | "GENRE_SEED" | "COUNTRY_SEED" | "BOX_OFFICE_SYNC" | "BOX_OFFICE_REMATCH" | "PERSON_NAME_KO_UPDATE";
+                targetType?: "USER" | "MOVIE" | "PERSON";
+                targetId?: number;
+                adminUserId?: number;
+                from?: string;
+                to?: string;
+                pageable: components["schemas"]["Pageable"];
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["PageResponseAdminAuditLogResponse"];
                 };
             };
         };

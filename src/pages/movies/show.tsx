@@ -1,5 +1,5 @@
 import { Show } from '@refinedev/antd'
-import { useCustomMutation, useShow } from '@refinedev/core'
+import { useCustomMutation, useInvalidate, useShow } from '@refinedev/core'
 import { App, Button, Card, Col, Descriptions, Image, Row, Space, Statistic, Tag } from 'antd'
 import dayjs from 'dayjs'
 import { useState } from 'react'
@@ -8,6 +8,7 @@ import { ApiError } from '../../api/client'
 import { endpoints } from '../../api/endpoints'
 import type { AdminMovieDetail } from '../../api/types'
 import { PosterSize, tmdbImageUrl, tmdbMovieUrl } from '../../constants/tmdb'
+import { RecentAuditLogs } from '../audit/RecentAuditLogs'
 
 const fmt = (v?: string) => (v ? dayjs(v).format('YYYY-MM-DD HH:mm') : '-')
 
@@ -33,6 +34,7 @@ export function MovieShow() {
   const { message, modal } = App.useApp()
   const { query } = useShow<AdminMovieDetail>({ resource: 'movies', id })
   const { mutateAsync, mutation } = useCustomMutation<AdminMovieDetail>()
+  const invalidate = useInvalidate()
   // 재동기화 응답으로 화면을 바로 갱신한다
   const [refreshed, setRefreshed] = useState<AdminMovieDetail | null>(null)
 
@@ -54,6 +56,8 @@ export function MovieShow() {
             errorNotification: false,
           })
           setRefreshed(result.data)
+          // 방금 한 동작이 "이 대상의 최근 기록"에 바로 보이게 감사 로그 목록을 다시 받는다
+          await invalidate({ resource: 'audit-logs', invalidates: ['list'] })
           message.success('재동기화가 완료되었습니다.')
         } catch (e) {
           message.error(resyncErrorMessage(e))
@@ -142,6 +146,7 @@ export function MovieShow() {
               </Col>
             ))}
           </Row>
+          <RecentAuditLogs targetType="MOVIE" targetId={id} />
         </>
       )}
     </Show>

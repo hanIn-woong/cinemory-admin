@@ -4,6 +4,7 @@ import { Card, Col, Descriptions, Row, Statistic, Tag } from 'antd'
 import dayjs from 'dayjs'
 import { useParams } from 'react-router'
 import type { AdminUserDetail } from '../../api/types'
+import { RecentAuditLogs } from '../audit/RecentAuditLogs'
 import { signupPathTags } from './signupTags'
 
 const fmt = (v?: string) => (v ? dayjs(v).format('YYYY-MM-DD HH:mm') : '-')
@@ -58,6 +59,7 @@ export function UserShow() {
               </Card>
             </Col>
           </Row>
+          <RecentAuditLogs targetType="USER" targetId={id} />
         </>
       )}
     </Show>

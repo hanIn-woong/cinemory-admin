@@ -10,6 +10,7 @@ interface PageBody {
 const LIST_PATHS: Record<string, string> = {
   users: endpoints.adminUsers,
   movies: endpoints.adminMovies,
+  'audit-logs': endpoints.adminAuditLogs,
 }
 
 const DETAIL_PATHS: Record<string, (id: string | number) => string> = {
@@ -17,7 +18,7 @@ const DETAIL_PATHS: Record<string, (id: string | number) => string> = {
   movies: endpoints.adminMovie,
 }
 
-// 필터는 평평한 {field, operator: 'eq', value}만 쓴다 — 검색(q)·TMDB ID·정렬(sort enum).
+// 필터는 평평한 {field, operator: 'eq', value}만 쓴다 — 검색(q)·TMDB ID·정렬(sort enum)·감사 로그 조건(동작·대상·관리자·기간).
 function filterValue(filters: CrudFilter[] | undefined, field: string): string | undefined {
   const found = filters?.find((f) => 'field' in f && f.field === field)
   const value = found && 'value' in found ? found.value : undefined
@@ -39,7 +40,7 @@ export const dataProvider: DataProvider = {
     // Refine의 페이지 번호는 1-based, 백엔드는 0-based
     params.set('page', String((pagination?.currentPage ?? 1) - 1))
     params.set('size', String(pagination?.pageSize ?? 20))
-    for (const field of ['q', 'tmdbId', 'sort']) {
+    for (const field of ['q', 'tmdbId', 'sort', 'action', 'targetType', 'targetId', 'adminUserId', 'from', 'to']) {
       const value = filterValue(filters, field)
       if (value !== undefined) params.set(field, value)
     }
