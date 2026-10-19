@@ -45,3 +45,6 @@ export const AUDIT_ACTION_LABELS: Record<AuditAction, string> = {
 export type AdminPersonSummary = Schemas['AdminPersonSummaryResponse']
 export type AdminMovieCredits = Schemas['AdminMovieCreditsResponse']
 export type AdminCreditItem = Schemas['AdminCreditItem']
+
+export type AdminDashboard = Schemas['AdminDashboardResponse']
+export type AdminDashboardTopMovie = Schemas['TopMovie']

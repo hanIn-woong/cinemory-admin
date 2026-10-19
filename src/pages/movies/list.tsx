@@ -8,12 +8,16 @@ import { Ellipsis } from '../../components/Ellipsis'
 import { PosterSize, tmdbImageUrl, tmdbMovieUrl } from '../../constants/tmdb'
 
 export function MovieList() {
-  const { tableProps, setFilters } = useTable<AdminMovieSummary>({
+  const { tableProps, setFilters, filters } = useTable<AdminMovieSummary>({
     resource: 'movies',
     syncWithLocation: true,
     pagination: { pageSize: 20 },
     filters: { initial: [{ field: 'sort', operator: 'eq', value: 'ID_DESC' }], mode: 'server' },
   })
+
+  // 정렬 선택은 URL 필터가 원천이다 — 대시보드 알림 링크(…sort=SYNCED_AT_ASC)로 들어와도 그 정렬이 선택돼 보인다
+  const sortFilter = filters.find((f) => 'field' in f && f.field === 'sort')
+  const sort = sortFilter && 'value' in sortFilter ? String(sortFilter.value) : 'ID_DESC'
 
   return (
     <List>
@@ -35,7 +39,7 @@ export function MovieList() {
           }}
         />
         <Select
-          defaultValue="ID_DESC"
+          value={sort}
           style={{ width: 180 }}
           options={MOVIE_SORTS.map((s) => ({ value: s.value, label: s.label }))}
           onChange={(value) => setFilters([{ field: 'sort', operator: 'eq', value }], 'merge')}

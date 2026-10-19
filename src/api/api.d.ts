@@ -1174,6 +1174,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/admin/dashboard": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** 관리자 대시보드 — 누적·최근 7일 KPI, 일별 추이(빈 날 0), 기록 TOP 10 영화 (days 7~90, 날짜는 KST) */
+        get: operations["getDashboard"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/admin/audit-logs": {
         parameters: {
             query?: never;
@@ -2155,6 +2172,58 @@ export interface components {
             userId?: number;
             email?: string;
             nickname?: string;
+        };
+        AdminDashboardResponse: {
+            totals?: components["schemas"]["Totals"];
+            recent?: components["schemas"]["Recent"];
+            daily?: components["schemas"]["DailyPoint"][];
+            topMovies?: components["schemas"]["TopMovie"][];
+        };
+        DailyPoint: {
+            /** Format: date */
+            date?: string;
+            /** Format: int64 */
+            newUsers?: number;
+            /** Format: int64 */
+            activeUsers?: number;
+            /** Format: int64 */
+            newWatchRecords?: number;
+            /** Format: int64 */
+            newReviews?: number;
+            /** Format: int64 */
+            newMovies?: number;
+        };
+        Recent: {
+            /** Format: int64 */
+            newUsers?: number;
+            /** Format: int64 */
+            activeUsers?: number;
+            /** Format: int64 */
+            recordingUsers?: number;
+            /** Format: int64 */
+            newWatchRecords?: number;
+        };
+        TopMovie: {
+            /** Format: int64 */
+            movieId?: number;
+            title?: string;
+            posterPath?: string;
+            /** Format: int64 */
+            recordCount?: number;
+        };
+        Totals: {
+            /** Format: int64 */
+            users?: number;
+            /** Format: int64 */
+            movies?: number;
+            /** Format: int64 */
+            watchRecords?: number;
+            /** Format: int64 */
+            reviews?: number;
+            /** Format: int64 */
+            moviesNeverSynced?: number;
+            /** Format: int64 */
+            personsMissingKorean?: number;
         };
         AdminAuditLogResponse: {
             /** Format: int64 */
@@ -3941,6 +4010,28 @@ export interface operations {
                 };
                 content: {
                     "*/*": components["schemas"]["AdminMeResponse"];
+                };
+            };
+        };
+    };
+    getDashboard: {
+        parameters: {
+            query?: {
+                days?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["AdminDashboardResponse"];
                 };
             };
         };

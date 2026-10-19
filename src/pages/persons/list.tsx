@@ -8,12 +8,15 @@ import { PersonPhoto } from './PersonPhoto'
 // 인물(admin-spec 12-4) — 검색 · "한글명 없는 인물만" 토글 · 인라인 편집. id 오름차순 고정(정렬 선택 없음).
 // 인물이 약 23만 명이라 처음에는 전체 목록이 길다 — 작업은 토글을 켜고 이름으로 좁혀서 한다.
 export function PersonList() {
-  const { tableProps, setFilters } = useTable<AdminPersonSummary>({
+  const { tableProps, setFilters, filters } = useTable<AdminPersonSummary>({
     resource: 'persons',
     syncWithLocation: true,
     pagination: { pageSize: 20 },
     filters: { mode: 'server' },
   })
+
+  // 토글 상태는 URL 필터가 원천이다 — 대시보드 알림 링크(?filters[0]…missingKorean=true)로 들어와도 켜진 채로 보인다
+  const missingKorean = filters.some((f) => 'field' in f && f.field === 'missingKorean' && f.value === 'true')
 
   return (
     <List>
@@ -26,6 +29,7 @@ export function PersonList() {
         />
         <Space>
           <Switch
+            checked={missingKorean}
             onChange={(checked) =>
               setFilters([{ field: 'missingKorean', operator: 'eq', value: checked ? 'true' : '' }], 'merge')
             }

@@ -17,6 +17,7 @@ const KO: Record<string, string> = {
   'movies.titles.show': '영화 상세',
   'audit-logs.titles.list': '감사 로그',
   'persons.titles.list': '인물',
+  'dashboard.titles.list': '대시보드',
 }
 
 export const i18nProvider: I18nProvider = {

@@ -2,10 +2,11 @@ import { Authenticated, Refine } from '@refinedev/core'
 import { ErrorComponent, ThemedLayout, useNotificationProvider } from '@refinedev/antd'
 import routerProvider, { CatchAllNavigate, NavigateToResource, DocumentTitleHandler } from '@refinedev/react-router'
 import '@refinedev/antd/dist/reset.css'
-import { App as AntdApp, ConfigProvider } from 'antd'
+import { App as AntdApp, ConfigProvider, Spin } from 'antd'
 import koKR from 'antd/locale/ko_KR'
 import dayjs from 'dayjs'
 import 'dayjs/locale/ko'
+import { Suspense, lazy } from 'react'
 import { BrowserRouter, Outlet, Route, Routes } from 'react-router'
 import { antdTheme } from './theme/brand'
 import { BrandTitle } from './components/BrandTitle'
@@ -19,6 +20,9 @@ import { MovieList } from './pages/movies/list'
 import { MovieShow } from './pages/movies/show'
 import { AuditLogList } from './pages/audit/list'
 import { PersonList } from './pages/persons/list'
+
+// 차트 라이브러리(Recharts)가 커서 대시보드 화면은 처음 열 때 불러온다 — 다른 화면의 초기 번들에 영향이 없다
+const DashboardPage = lazy(() => import('./pages/dashboard').then((m) => ({ default: m.DashboardPage })))
 
 dayjs.locale('ko')
 
@@ -34,6 +38,7 @@ export default function App() {
             i18nProvider={i18nProvider}
             notificationProvider={useNotificationProvider}
             resources={[
+              { name: 'dashboard', list: '/dashboard', meta: { label: '대시보드' } },
               { name: 'users', list: '/users', show: '/users/show/:id', meta: { label: '회원' } },
               { name: 'movies', list: '/movies', show: '/movies/show/:id', meta: { label: '영화' } },
               { name: 'persons', list: '/persons', meta: { label: '인물' } },
@@ -57,7 +62,15 @@ export default function App() {
                   </Authenticated>
                 }
               >
-                <Route index element={<NavigateToResource resource="users" />} />
+                <Route index element={<NavigateToResource resource="dashboard" />} />
+                <Route
+                  path="/dashboard"
+                  element={
+                    <Suspense fallback={<Spin style={{ display: 'block', margin: '64px auto' }} />}>
+                      <DashboardPage />
+                    </Suspense>
+                  }
+                />
                 <Route path="/users">
                   <Route index element={<UserList />} />
                   <Route path="show/:id" element={<UserShow />} />
@@ -77,7 +90,7 @@ export default function App() {
               <Route
                 element={
                   <Authenticated key="public" fallback={<Outlet />}>
-                    <NavigateToResource resource="users" />
+                    <NavigateToResource resource="dashboard" />
                   </Authenticated>
                 }
               >
