@@ -4,6 +4,7 @@ import dayjs from 'dayjs'
 import { Link } from 'react-router'
 import type { AdminMovieSummary } from '../../api/types'
 import { MOVIE_SORTS } from '../../api/types'
+import { Ellipsis } from '../../components/Ellipsis'
 import { PosterSize, tmdbImageUrl, tmdbMovieUrl } from '../../constants/tmdb'
 
 export function MovieList() {
@@ -61,8 +62,17 @@ export function MovieList() {
             const sub = row.originalTitle ?? (row.titleKo ? row.title : undefined)
             return (
               <>
-                <Link to={`/movies/show/${row.movieId}`}>{shown}</Link>
-                {sub && sub !== shown && <div style={{ fontSize: 12, opacity: 0.65 }}>{sub}</div>}
+                {/* 긴 제목은 한 줄에서 자르고 전체는 마우스를 올리면 보인다 */}
+                <div>
+                  <Ellipsis text={shown ?? ''}>
+                    <Link to={`/movies/show/${row.movieId}`}>{shown}</Link>
+                  </Ellipsis>
+                </div>
+                {sub && sub !== shown && (
+                  <div>
+                    <Ellipsis text={sub} style={{ fontSize: 12, opacity: 0.65 }} />
+                  </div>
+                )}
               </>
             )
           }}
