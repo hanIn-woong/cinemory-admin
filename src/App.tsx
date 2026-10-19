@@ -7,6 +7,8 @@ import koKR from 'antd/locale/ko_KR'
 import dayjs from 'dayjs'
 import 'dayjs/locale/ko'
 import { BrowserRouter, Outlet, Route, Routes } from 'react-router'
+import { antdTheme } from './theme/brand'
+import { BrandMark } from './components/BrandMark'
 import { authProvider } from './providers/authProvider'
 import { dataProvider } from './providers/dataProvider'
 import { i18nProvider } from './providers/i18nProvider'
@@ -21,7 +23,7 @@ dayjs.locale('ko')
 export default function App() {
   return (
     <BrowserRouter>
-      <ConfigProvider locale={koKR}>
+      <ConfigProvider locale={koKR} theme={antdTheme}>
         <AntdApp>
           <Refine
             routerProvider={routerProvider}
@@ -39,7 +41,7 @@ export default function App() {
               <Route
                 element={
                   <Authenticated key="protected" fallback={<CatchAllNavigate to="/login" />}>
-                    <ThemedLayout Title={({ collapsed }) => <ThemedTitle collapsed={collapsed} text="CineMory 관리자" />}>
+                    <ThemedLayout Title={({ collapsed }) => <ThemedTitle collapsed={collapsed} icon={<BrandMark size={28} />} text="CineMory 관리자" />}>
                       <Outlet />
                     </ThemedLayout>
                   </Authenticated>

@@ -10,6 +10,11 @@ const KO: Record<string, string> = {
   'pages.error.404': '요청하신 페이지가 없습니다.',
   'pages.error.backHome': '처음으로',
   'notifications.error': '오류가 발생했습니다.',
+  // 리소스 제목 — Refine이 기본 문구 없이 키만 넘기는 경우가 있다
+  'users.titles.list': '회원',
+  'users.titles.show': '회원 상세',
+  'movies.titles.list': '영화',
+  'movies.titles.show': '영화 상세',
 }
 
 export const i18nProvider: I18nProvider = {
