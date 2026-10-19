@@ -1,5 +1,5 @@
 import { Authenticated, Refine } from '@refinedev/core'
-import { ErrorComponent, ThemedLayout, ThemedTitle, useNotificationProvider } from '@refinedev/antd'
+import { ErrorComponent, ThemedLayout, useNotificationProvider } from '@refinedev/antd'
 import routerProvider, { CatchAllNavigate, NavigateToResource, DocumentTitleHandler } from '@refinedev/react-router'
 import '@refinedev/antd/dist/reset.css'
 import { App as AntdApp, ConfigProvider } from 'antd'
@@ -8,7 +8,7 @@ import dayjs from 'dayjs'
 import 'dayjs/locale/ko'
 import { BrowserRouter, Outlet, Route, Routes } from 'react-router'
 import { antdTheme } from './theme/brand'
-import { BrandMark } from './components/BrandMark'
+import { BrandTitle } from './components/BrandTitle'
 import { authProvider } from './providers/authProvider'
 import { dataProvider } from './providers/dataProvider'
 import { i18nProvider } from './providers/i18nProvider'
@@ -41,7 +41,7 @@ export default function App() {
               <Route
                 element={
                   <Authenticated key="protected" fallback={<CatchAllNavigate to="/login" />}>
-                    <ThemedLayout Title={({ collapsed }) => <ThemedTitle collapsed={collapsed} icon={<BrandMark size={28} />} text="CineMory 관리자" />}>
+                    <ThemedLayout Title={({ collapsed }) => <BrandTitle collapsed={collapsed} />}>
                       <Outlet />
                     </ThemedLayout>
                   </Authenticated>
