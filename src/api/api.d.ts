@@ -601,6 +601,23 @@ export interface paths {
         patch: operations["reorderCollections"];
         trace?: never;
     };
+    "/api/admin/persons/{personId}/name-ko": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /** 인물 한글명 변경 — null·빈 문자열은 해제, 같은 값이면 기록 없이 200 (감사 로그 PERSON_NAME_KO_UPDATE) */
+        patch: operations["changeNameKo"];
+        trace?: never;
+    };
     "/api/wishes/me/{movieId}": {
         parameters: {
             query?: never;
@@ -1055,6 +1072,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/admin/persons": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** 관리자 인물 목록 — 이름/한글명 검색, 한글 이름 없는 인물만 (id 오름차순 고정, page 0-based) */
+        get: operations["getPersons"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/admin/movies": {
         parameters: {
             query?: never;
@@ -1081,6 +1115,23 @@ export interface paths {
         };
         /** 관리자 영화 상세 — 분류·사용 지표 포함 */
         get: operations["getMovie"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/admin/movies/{movieId}/credits": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** 관리자 영화 출연진·감독 — 인물 한글명 편집 동선의 출발점 (TMDB 원본명과 한글명을 따로) */
+        get: operations["getMovieCredits"];
         put?: never;
         post?: never;
         delete?: never;
@@ -1424,6 +1475,20 @@ export interface components {
         };
         CollectionOrderRequest: {
             collectionIds: number[];
+        };
+        AdminPersonNameKoRequest: {
+            nameKo?: string;
+        };
+        AdminPersonSummaryResponse: {
+            /** Format: int64 */
+            personId?: number;
+            /** Format: int64 */
+            tmdbPersonId?: number;
+            name?: string;
+            nameKo?: string;
+            profilePath?: string;
+            /** Format: int64 */
+            creditCount?: number;
         };
         Pageable: {
             /** Format: int32 */
@@ -2000,6 +2065,19 @@ export interface components {
             updatedAt?: string;
             activity?: components["schemas"]["Activity"];
         };
+        PageResponseAdminPersonSummaryResponse: {
+            content?: components["schemas"]["AdminPersonSummaryResponse"][];
+            /** Format: int32 */
+            page?: number;
+            /** Format: int32 */
+            size?: number;
+            /** Format: int64 */
+            totalElements?: number;
+            /** Format: int32 */
+            totalPages?: number;
+            first?: boolean;
+            last?: boolean;
+        };
         AdminMovieSummaryResponse: {
             /** Format: int64 */
             movieId?: number;
@@ -2031,6 +2109,24 @@ export interface components {
             totalPages?: number;
             first?: boolean;
             last?: boolean;
+        };
+        AdminCreditItem: {
+            /** Format: int64 */
+            personId?: number;
+            /** Format: int64 */
+            tmdbPersonId?: number;
+            name?: string;
+            nameKo?: string;
+            profilePath?: string;
+            /** Format: int32 */
+            displayOrder?: number;
+            /** @enum {string} */
+            roleTier?: "LEAD" | "SUPPORTING" | "MINOR" | "EXTRA";
+            characterName?: string;
+        };
+        AdminMovieCreditsResponse: {
+            directors?: components["schemas"]["AdminCreditItem"][];
+            cast?: components["schemas"]["AdminCreditItem"][];
         };
         AdminMeResponse: {
             /** Format: int64 */
@@ -3057,6 +3153,32 @@ export interface operations {
             };
         };
     };
+    changeNameKo: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                personId: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AdminPersonNameKoRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["AdminPersonSummaryResponse"];
+                };
+            };
+        };
+    };
     isWished: {
         parameters: {
             query?: never;
@@ -3662,6 +3784,30 @@ export interface operations {
             };
         };
     };
+    getPersons: {
+        parameters: {
+            query: {
+                q?: string;
+                missingKorean?: boolean;
+                pageable: components["schemas"]["Pageable"];
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["PageResponseAdminPersonSummaryResponse"];
+                };
+            };
+        };
+    };
     getMovies: {
         parameters: {
             query: {
@@ -3705,6 +3851,28 @@ export interface operations {
                 };
                 content: {
                     "*/*": components["schemas"]["AdminMovieDetailResponse"];
+                };
+            };
+        };
+    };
+    getMovieCredits: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                movieId: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["AdminMovieCreditsResponse"];
                 };
             };
         };

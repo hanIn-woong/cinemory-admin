@@ -1,6 +1,6 @@
 import { Show } from '@refinedev/antd'
 import { useCustomMutation, useInvalidate, useShow } from '@refinedev/core'
-import { App, Button, Card, Col, Descriptions, Image, Row, Space, Statistic, Tag } from 'antd'
+import { App, Button, Card, Col, Descriptions, Image, Row, Space, Statistic, Tabs, Tag } from 'antd'
 import dayjs from 'dayjs'
 import { useState } from 'react'
 import { useParams } from 'react-router'
@@ -9,6 +9,7 @@ import { endpoints } from '../../api/endpoints'
 import type { AdminMovieDetail } from '../../api/types'
 import { PosterSize, tmdbImageUrl, tmdbMovieUrl } from '../../constants/tmdb'
 import { RecentAuditLogs } from '../audit/RecentAuditLogs'
+import { MovieCredits } from './MovieCredits'
 
 const fmt = (v?: string) => (v ? dayjs(v).format('YYYY-MM-DD HH:mm') : '-')
 
@@ -84,7 +85,13 @@ export function MovieShow() {
       )}
     >
       {movie && (
-        <>
+        <Tabs
+          items={[
+            {
+              key: 'info',
+              label: '기본 정보',
+              children: (
+                <>
           <Row gutter={24} style={{ marginBottom: 24 }}>
             <Col xs={24} md={6}>
               {poster ? (
@@ -147,7 +154,16 @@ export function MovieShow() {
             ))}
           </Row>
           <RecentAuditLogs targetType="MOVIE" targetId={id} />
-        </>
+                </>
+              ),
+            },
+            {
+              key: 'credits',
+              label: '출연진·감독',
+              children: <MovieCredits movieId={id} />,
+            },
+          ]}
+        />
       )}
     </Show>
   )

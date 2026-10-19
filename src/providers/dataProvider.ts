@@ -11,6 +11,7 @@ const LIST_PATHS: Record<string, string> = {
   users: endpoints.adminUsers,
   movies: endpoints.adminMovies,
   'audit-logs': endpoints.adminAuditLogs,
+  persons: endpoints.adminPersons,
 }
 
 const DETAIL_PATHS: Record<string, (id: string | number) => string> = {
@@ -26,7 +27,7 @@ function filterValue(filters: CrudFilter[] | undefined, field: string): string |
 }
 
 function unsupported(): never {
-  throw new Error('관리자 1단계는 조회와 단건 재동기화만 지원합니다.')
+  throw new Error('지원하지 않는 동작입니다.')
 }
 
 export const dataProvider: DataProvider = {
@@ -40,7 +41,7 @@ export const dataProvider: DataProvider = {
     // Refine의 페이지 번호는 1-based, 백엔드는 0-based
     params.set('page', String((pagination?.currentPage ?? 1) - 1))
     params.set('size', String(pagination?.pageSize ?? 20))
-    for (const field of ['q', 'tmdbId', 'sort', 'action', 'targetType', 'targetId', 'adminUserId', 'from', 'to']) {
+    for (const field of ['q', 'tmdbId', 'sort', 'action', 'targetType', 'targetId', 'adminUserId', 'from', 'to', 'missingKorean']) {
       const value = filterValue(filters, field)
       if (value !== undefined) params.set(field, value)
     }
@@ -55,10 +56,13 @@ export const dataProvider: DataProvider = {
     return { data: (await api.get<BaseRecord>(detailPath(id))) as never }
   },
 
-  // 재동기화 — POST /api/admin/movies/{id}/resync (갱신된 상세를 돌려준다)
+  // 쓰기는 두 가지뿐 — 영화 재동기화(POST /movies/{id}/resync)와 인물 한글명(PATCH /persons/{id}/name-ko). 둘 다 갱신된 값을 돌려준다.
+  // GET은 화면별 단건 조회(출연진 등)에 쓴다.
   custom: async ({ url, method, payload }) => {
-    if (method !== 'post') return unsupported()
-    return { data: (await api.post<BaseRecord>(url, payload)) as never }
+    if (method === 'get') return { data: (await api.get<BaseRecord>(url)) as never }
+    if (method === 'post') return { data: (await api.post<BaseRecord>(url, payload)) as never }
+    if (method === 'patch') return { data: (await api.patch<BaseRecord>(url, payload)) as never }
+    return unsupported()
   },
 
   create: async () => unsupported(),

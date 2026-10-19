@@ -40,3 +40,7 @@ export const AUDIT_ACTION_LABELS: Record<AuditAction, string> = {
   BOX_OFFICE_REMATCH: '박스오피스 재매칭',
   PERSON_NAME_KO_UPDATE: '인물 한글명 수정',
 }
+
+export type AdminPersonSummary = Schemas['AdminPersonSummaryResponse']
+export type AdminMovieCredits = Schemas['AdminMovieCreditsResponse']
+export type AdminCreditItem = Schemas['AdminCreditItem']
