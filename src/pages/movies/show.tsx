@@ -10,6 +10,7 @@ import type { AdminMovieDetail } from '../../api/types'
 import { PosterSize, tmdbImageUrl, tmdbMovieUrl } from '../../constants/tmdb'
 import { RecentAuditLogs } from '../audit/RecentAuditLogs'
 import { MovieCredits } from './MovieCredits'
+import { TitleKoEditor } from './TitleKoEditor'
 
 const fmt = (v?: string) => (v ? dayjs(v).format('YYYY-MM-DD HH:mm') : '-')
 
@@ -108,7 +109,19 @@ export function MovieShow() {
                     {movie.tmdbId}
                   </a>
                 </Descriptions.Item>
-                <Descriptions.Item label="제목">{movie.title}</Descriptions.Item>
+                <Descriptions.Item label="TMDB 제목">{movie.title}</Descriptions.Item>
+                <Descriptions.Item label="한글 제목" span={2}>
+                  <TitleKoEditor
+                    movieId={movie.movieId ?? 0}
+                    titleKo={movie.titleKo}
+                    onSaved={async (saved) => {
+                      setRefreshed(saved)
+                      // 방금 한 동작이 "이 대상의 최근 기록"과 영화 목록에 바로 보이게 다시 받는다
+                      await invalidate({ resource: 'audit-logs', invalidates: ['list'] })
+                      await invalidate({ resource: 'movies', invalidates: ['list'] })
+                    }}
+                  />
+                </Descriptions.Item>
                 <Descriptions.Item label="원제">{movie.originalTitle ?? '-'}</Descriptions.Item>
                 <Descriptions.Item label="개봉일">{movie.releaseDate ?? '-'}</Descriptions.Item>
                 <Descriptions.Item label="상영시간">{movie.runtime ? `${movie.runtime}분` : '-'}</Descriptions.Item>

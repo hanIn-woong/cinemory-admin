@@ -13,4 +13,5 @@ export const endpoints = {
   adminMovieCredits: (id: string | number) => `/api/admin/movies/${id}/credits`,
   adminMovie: (id: string | number) => `/api/admin/movies/${id}`,
   adminMovieResync: (id: string | number) => `/api/admin/movies/${id}/resync`,
+  adminMovieTitleKo: (id: string | number) => `/api/admin/movies/${id}/title-ko`,
 } as const

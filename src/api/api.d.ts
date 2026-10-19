@@ -618,6 +618,23 @@ export interface paths {
         patch: operations["changeNameKo"];
         trace?: never;
     };
+    "/api/admin/movies/{movieId}/title-ko": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /** 영화 한글 제목 변경 — null·빈 문자열은 해제, 같은 값이면 기록 없이 200 (감사 로그 MOVIE_TITLE_KO_UPDATE) */
+        patch: operations["changeTitleKo"];
+        trace?: never;
+    };
     "/api/wishes/me/{movieId}": {
         parameters: {
             query?: never;
@@ -1375,6 +1392,7 @@ export interface components {
             tmdbId?: number;
             koficMovieCd?: string;
             title?: string;
+            titleKo?: string;
             originalTitle?: string;
             /** Format: date */
             releaseDate?: string;
@@ -1489,6 +1507,9 @@ export interface components {
             profilePath?: string;
             /** Format: int64 */
             creditCount?: number;
+        };
+        AdminMovieTitleKoRequest: {
+            titleKo?: string;
         };
         Pageable: {
             /** Format: int32 */
@@ -2085,6 +2106,7 @@ export interface components {
             tmdbId?: number;
             koficMovieCd?: string;
             title?: string;
+            titleKo?: string;
             originalTitle?: string;
             /** Format: date */
             releaseDate?: string;
@@ -2141,7 +2163,7 @@ export interface components {
             adminUserId?: number;
             adminEmail?: string;
             /** @enum {string} */
-            action?: "USER_LIST_VIEW" | "USER_DETAIL_VIEW" | "MOVIE_RESYNC" | "MOVIE_RESYNC_BATCH" | "MOVIE_SEED_BOX_OFFICE" | "MOVIE_SEED_DISCOVER" | "GENRE_SEED" | "COUNTRY_SEED" | "BOX_OFFICE_SYNC" | "BOX_OFFICE_REMATCH" | "PERSON_NAME_KO_UPDATE";
+            action?: "USER_LIST_VIEW" | "USER_DETAIL_VIEW" | "MOVIE_RESYNC" | "MOVIE_RESYNC_BATCH" | "MOVIE_SEED_BOX_OFFICE" | "MOVIE_SEED_DISCOVER" | "GENRE_SEED" | "COUNTRY_SEED" | "BOX_OFFICE_SYNC" | "BOX_OFFICE_REMATCH" | "PERSON_NAME_KO_UPDATE" | "MOVIE_TITLE_KO_UPDATE";
             /** @enum {string} */
             targetType?: "USER" | "MOVIE" | "PERSON";
             /** Format: int64 */
@@ -3179,6 +3201,32 @@ export interface operations {
             };
         };
     };
+    changeTitleKo: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                movieId: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AdminMovieTitleKoRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["AdminMovieDetailResponse"];
+                };
+            };
+        };
+    };
     isWished: {
         parameters: {
             query?: never;
@@ -3900,7 +3948,7 @@ export interface operations {
     getAuditLogs: {
         parameters: {
             query: {
-                action?: "USER_LIST_VIEW" | "USER_DETAIL_VIEW" | "MOVIE_RESYNC" | "MOVIE_RESYNC_BATCH" | "MOVIE_SEED_BOX_OFFICE" | "MOVIE_SEED_DISCOVER" | "GENRE_SEED" | "COUNTRY_SEED" | "BOX_OFFICE_SYNC" | "BOX_OFFICE_REMATCH" | "PERSON_NAME_KO_UPDATE";
+                action?: "USER_LIST_VIEW" | "USER_DETAIL_VIEW" | "MOVIE_RESYNC" | "MOVIE_RESYNC_BATCH" | "MOVIE_SEED_BOX_OFFICE" | "MOVIE_SEED_DISCOVER" | "GENRE_SEED" | "COUNTRY_SEED" | "BOX_OFFICE_SYNC" | "BOX_OFFICE_REMATCH" | "PERSON_NAME_KO_UPDATE" | "MOVIE_TITLE_KO_UPDATE";
                 targetType?: "USER" | "MOVIE" | "PERSON";
                 targetId?: number;
                 adminUserId?: number;

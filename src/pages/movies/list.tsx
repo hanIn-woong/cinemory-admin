@@ -55,14 +55,17 @@ export function MovieList() {
         />
         <Table.Column<AdminMovieSummary>
           title="제목"
-          render={(_, row) => (
-            <>
-              <Link to={`/movies/show/${row.movieId}`}>{row.title}</Link>
-              {row.originalTitle && row.originalTitle !== row.title && (
-                <div style={{ fontSize: 12, opacity: 0.65 }}>{row.originalTitle}</div>
-              )}
-            </>
-          )}
+          render={(_, row) => {
+            // 표시 제목(한글 제목 우선)이 앱에 보이는 제목이다. 아래 줄은 원제(없으면 한글 제목이 덮은 TMDB 제목)
+            const shown = row.titleKo ?? row.title
+            const sub = row.originalTitle ?? (row.titleKo ? row.title : undefined)
+            return (
+              <>
+                <Link to={`/movies/show/${row.movieId}`}>{shown}</Link>
+                {sub && sub !== shown && <div style={{ fontSize: 12, opacity: 0.65 }}>{sub}</div>}
+              </>
+            )
+          }}
         />
         <Table.Column dataIndex="releaseDate" title="개봉일" render={(v) => v ?? '-'} />
         <Table.Column<AdminMovieSummary>

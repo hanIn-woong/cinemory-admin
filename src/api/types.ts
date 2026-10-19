@@ -39,6 +39,7 @@ export const AUDIT_ACTION_LABELS: Record<AuditAction, string> = {
   BOX_OFFICE_SYNC: '박스오피스 수집',
   BOX_OFFICE_REMATCH: '박스오피스 재매칭',
   PERSON_NAME_KO_UPDATE: '인물 한글명 수정',
+  MOVIE_TITLE_KO_UPDATE: '영화 한글 제목 수정',
 }
 
 export type AdminPersonSummary = Schemas['AdminPersonSummaryResponse']
