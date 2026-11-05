@@ -40,6 +40,16 @@ export const AUDIT_ACTION_LABELS: Record<AuditAction, string> = {
   BOX_OFFICE_REMATCH: '박스오피스 재매칭',
   PERSON_NAME_KO_UPDATE: '인물 한글명 수정',
   MOVIE_TITLE_KO_UPDATE: '영화 한글 제목 수정',
+  THEATER_SEED: '극장 동기화',
+  THEATER_BOOKING_URL_UPDATE: '극장 예매 링크 수정',
+  THEATER_NAME_UPDATE: '극장 이름 수정',
+  BOX_OFFICE_LINK: '박스오피스 연결',
+  BOX_OFFICE_UNLINK: '박스오피스 연결 해제',
+  MOVIE_POSTER_PIN: '영화 포스터 고정',
+  MOVIE_POSTER_UNPIN: '영화 포스터 고정 해제',
+  EMBEDDING_SYNC: '임베딩 동기화',
+  RECOMMENDATION_DEBUG_VIEW: '추천 디버그 조회',
+  MOVIE_RECOMMEND_OVERRIDE: '영화 추천 노출 수동 설정',
 }
 
 export type AdminPersonSummary = Schemas['AdminPersonSummaryResponse']
@@ -48,3 +58,14 @@ export type AdminCreditItem = Schemas['AdminCreditItem']
 
 export type AdminDashboard = Schemas['AdminDashboardResponse']
 export type AdminDashboardTopMovie = Schemas['TopMovie']
+
+export type AdminUnlinkedBoxOffice = Schemas['AdminUnlinkedBoxOfficeResponse']
+export type BoxOfficeLinkResult = Schemas['BoxOfficeLinkResponse']
+export type AdminMoviePosters = Schemas['AdminMoviePostersResponse']
+export type AdminPosterCandidate = Schemas['Candidate']
+export type AdminPosterUnpinResult = Schemas['AdminMoviePosterUnpinResponse']
+export type AdminTheater = Schemas['AdminTheaterResponse']
+export type TheaterSeedReport = Schemas['TheaterSeedReport']
+export type MovieSearchSuggestion = Schemas['MovieSearchSuggestionResponse']
+
+export const THEATER_CHAINS = ['CGV', '롯데시네마', '메가박스', '씨네Q', '기타'] as const

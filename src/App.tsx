@@ -20,6 +20,8 @@ import { MovieList } from './pages/movies/list'
 import { MovieShow } from './pages/movies/show'
 import { AuditLogList } from './pages/audit/list'
 import { PersonList } from './pages/persons/list'
+import { BoxOfficeUnlinkedList } from './pages/box-office/list'
+import { TheaterList } from './pages/theaters/list'
 
 // 차트 라이브러리(Recharts)가 커서 대시보드 화면은 처음 열 때 불러온다 — 다른 화면의 초기 번들에 영향이 없다
 const DashboardPage = lazy(() => import('./pages/dashboard').then((m) => ({ default: m.DashboardPage })))
@@ -42,6 +44,8 @@ export default function App() {
               { name: 'users', list: '/users', show: '/users/show/:id', meta: { label: '회원' } },
               { name: 'movies', list: '/movies', show: '/movies/show/:id', meta: { label: '영화' } },
               { name: 'persons', list: '/persons', meta: { label: '인물' } },
+              { name: 'box-office', list: '/box-office', meta: { label: '박스오피스' } },
+              { name: 'theaters', list: '/theaters', meta: { label: '극장' } },
               { name: 'audit-logs', list: '/audit-logs', meta: { label: '감사 로그' } },
             ]}
             options={{
@@ -81,6 +85,12 @@ export default function App() {
                 </Route>
                 <Route path="/persons">
                   <Route index element={<PersonList />} />
+                </Route>
+                <Route path="/box-office">
+                  <Route index element={<BoxOfficeUnlinkedList />} />
+                </Route>
+                <Route path="/theaters">
+                  <Route index element={<TheaterList />} />
                 </Route>
                 <Route path="/audit-logs">
                   <Route index element={<AuditLogList />} />

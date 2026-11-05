@@ -9,6 +9,8 @@ import { ApiError } from '../api/client'
 export function KoEditor<T extends Record<string, unknown>>({
   url,
   field,
+  resultField = field,
+  clearAsNull = false,
   value,
   placeholder,
   savedMessage,
@@ -19,6 +21,10 @@ export function KoEditor<T extends Record<string, unknown>>({
 }: {
   url: string
   field: string
+  /** 응답에서 확정 값을 읽는 필드 — 요청 필드와 다를 때만(극장: 요청 name, 응답 nameOverride) */
+  resultField?: string
+  /** true면 빈 입력을 "" 대신 null로 보낸다(예매 링크는 ""를 형식 위반으로 본다) */
+  clearAsNull?: boolean
   value: string | undefined
   placeholder: string
   savedMessage: string
@@ -38,11 +44,11 @@ export function KoEditor<T extends Record<string, unknown>>({
       const result = await mutateAsync({
         url,
         method: 'patch',
-        values: { [field]: draft },
+        values: { [field]: clearAsNull && draft.trim() === '' ? null : draft },
         successNotification: false,
         errorNotification: false,
       })
-      const next = (result.data[field] as string | null | undefined) ?? ''
+      const next = (result.data[resultField] as string | null | undefined) ?? ''
       setSaved(next)
       setDraft(next)
       message.success(next ? savedMessage : clearedMessage)

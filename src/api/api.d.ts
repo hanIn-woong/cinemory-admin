@@ -4,6 +4,68 @@
  */
 
 export interface paths {
+    "/api/users/me/profile": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /**
+         * 프로필 통합 저장 (전체 치환)
+         * @description 닉네임·자기소개·공개 범위·인생 영화(0~10편)·영화 커버를 한 번에 저장한다. 이미지(사진·업로드 커버)는 별도 업로드 흐름. coverMovieId가 null이면 영화 커버만 해제하고 업로드 커버는 유지한다.
+         */
+        put: operations["updateProfile"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/users/me/profile-image": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /**
+         * 프로필 사진 확정
+         * @description 키 소유·존재·크기(2MB)·image/jpeg 검사. 실패 시 INVALID_PROFILE_IMAGE.
+         */
+        put: operations["confirmProfileImage"];
+        post?: never;
+        /** 프로필 사진 삭제 (기본 아바타로) */
+        delete: operations["removeProfileImage"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/users/me/cover-image": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /**
+         * 커버 이미지 확정
+         * @description 키 소유·존재·크기(2MB)·image/jpeg 검사. 실패 시 INVALID_COVER_IMAGE. 영화 커버는 해제된다.
+         */
+        put: operations["confirmCoverImage"];
+        post?: never;
+        /** 업로드 커버 해제 */
+        delete: operations["removeCoverImage"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/movies/{movieId}/review": {
         parameters: {
             query?: never;
@@ -17,6 +79,24 @@ export interface paths {
         post?: never;
         /** 영화 리뷰 삭제 */
         delete: operations["deleteReview"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/admin/movies/{movieId}/poster": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /** 포스터 고정 — 후보에 없는 경로는 400 INVALID_POSTER_PATH, 같은 값이면 기록 없이 200 */
+        put: operations["pinPoster"];
+        post?: never;
+        /** 포스터 고정 해제 — 이어서 단건 재동기화로 TMDB 기본 포스터를 되돌린다(일괄 작업 중이면 resynced=false) */
+        delete: operations["unpinPoster"];
         options?: never;
         head?: never;
         patch?: never;
@@ -40,6 +120,40 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/users/me/withdrawal": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** 회원 탈퇴 */
+        post: operations["withdraw"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/users/me/terms-agreement": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** 가입 동의 기록 (멱등) */
+        post: operations["agreeToTerms"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/users/me/social-accounts/{provider}": {
         parameters: {
             query?: never;
@@ -53,6 +167,66 @@ export interface paths {
         post: operations["linkSocialAccount"];
         /** 소셜 계정 연결 해제 */
         delete: operations["unlinkSocialAccount"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/users/me/profile-image/upload-url": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * 프로필 사진 업로드 URL 발급
+         * @description 반환된 uploadUrl로 Content-Type: image/jpeg PUT 후 key를 PUT /api/users/me/profile-image에 넘긴다.
+         */
+        post: operations["issueProfileImageUploadUrl"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/users/me/export": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * 내 기록 내보내기 링크 발급 (1회용 · 10분 · 1분에 1회)
+         * @description 응답의 downloadUrl을 브라우저로 열면 ZIP(CSV 4개)을 받는다. 같은 사용자 1분에 1회 — 초과 시 429 + Retry-After.
+         */
+        post: operations["issueLink"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/users/me/cover-image/upload-url": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * 커버 이미지 업로드 URL 발급
+         * @description 반환된 uploadUrl로 Content-Type: image/jpeg PUT 후 key를 PUT /api/users/me/cover-image에 넘긴다.
+         */
+        post: operations["issueCoverImageUploadUrl"];
+        delete?: never;
         options?: never;
         head?: never;
         patch?: never;
@@ -103,24 +277,6 @@ export interface paths {
         put?: never;
         /** TMDB 영화 온디맨드 동기화 */
         post: operations["syncMovie"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/comments": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** 댓글 목록 조회 */
-        get: operations["getComments"];
-        put?: never;
-        /** 댓글 작성 */
-        post: operations["createComment"];
         delete?: never;
         options?: never;
         head?: never;
@@ -290,6 +446,22 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/auth/logout-all": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["logoutAll"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/auth/login": {
         parameters: {
             query?: never;
@@ -300,6 +472,23 @@ export interface paths {
         get?: never;
         put?: never;
         post: operations["login"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/admin/theaters/seed": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** 극장 시드·동기화 — 공공데이터 영화상영관 적재, 폐업 숨김·복구. dryRun=true면 저장 없이 통계만 (감사 로그 THEATER_SEED는 dryRun=false이고 중단되지 않았을 때만) */
+        post: operations["seed"];
         delete?: never;
         options?: never;
         head?: never;
@@ -391,6 +580,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/admin/embeddings/sync": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * 영화 임베딩 수동 실행 — 해시가 바뀐 영화만 (스케줄 06:00과 실행 플래그 공유, 실행 중이면 409)
+         * @description 첫 적재 · 시연 전 즉시 반영 · 인물명 일괄 보강 직후 · 모델/템플릿 변경 직후 · 429/장애 중단 후 재개에 쓴다. limit 기본 1000(1~5000). 응답의 lastProcessedId를 다음 호출의 afterId로 넘겨 이어받는다. 완료 후 벡터·특징 인덱스가 재생성된다. 감사 로그 EMBEDDING_SYNC.
+         */
+        post: operations["syncEmbeddings"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/admin/countries/seed": {
         parameters: {
             query?: never;
@@ -402,6 +611,40 @@ export interface paths {
         put?: never;
         /** TMDB 국가 참조 테이블 시드 */
         post: operations["seedCountries"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/admin/box-office/{koficMovieCd}/unlink": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** 박스오피스 연결 해제 — 이 코드의 모든 행과 영화의 KOFIC 코드를 비운다. 해제 후 05:30 재매칭이 제목으로 다시 붙일 수 있다 */
+        post: operations["unlink"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/admin/box-office/{koficMovieCd}/link": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** 박스오피스 수동 연결 — KOFIC 코드의 모든 미연결 행을 영화에 잇고 영화에 코드를 심는다. 충돌 409 KOFIC_CODE_CONFLICT, 미연결 0개 404 */
+        post: operations["link"];
         delete?: never;
         options?: never;
         head?: never;
@@ -531,24 +774,6 @@ export interface paths {
         patch: operations["setRepresentative"];
         trace?: never;
     };
-    "/api/comments/{commentId}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        post?: never;
-        /** 댓글 삭제 */
-        delete: operations["deleteComment"];
-        options?: never;
-        head?: never;
-        /** 댓글 수정 */
-        patch: operations["editComment"];
-        trace?: never;
-    };
     "/api/collections/{collectionId}": {
         parameters: {
             query?: never;
@@ -601,6 +826,40 @@ export interface paths {
         patch: operations["reorderCollections"];
         trace?: never;
     };
+    "/api/admin/theaters/{theaterId}/name": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /** 극장 이름 덮어쓰기 — name이 null·빈 문자열이면 해제(규칙 이름 복귀), 100자 초과 400, 같은 값이면 기록 없이 200 */
+        patch: operations["changeName"];
+        trace?: never;
+    };
+    "/api/admin/theaters/{theaterId}/booking-url": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /** 극장 예매 링크 변경 — null은 삭제, https:// 시작·500자 이하·공백 불가(위반 400 INVALID_BOOKING_URL), 같은 값이면 기록 없이 200 */
+        patch: operations["changeBookingUrl"];
+        trace?: never;
+    };
     "/api/admin/persons/{personId}/name-ko": {
         parameters: {
             query?: never;
@@ -633,6 +892,26 @@ export interface paths {
         head?: never;
         /** 영화 한글 제목 변경 — null·빈 문자열은 해제, 같은 값이면 기록 없이 200 (감사 로그 MOVIE_TITLE_KO_UPDATE) */
         patch: operations["changeTitleKo"];
+        trace?: never;
+    };
+    "/api/admin/movies/{movieId}/recommend-override": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /**
+         * 영화 추천 제외 덮어쓰기 — BLOCK(제외) · ALLOW(허용) · null(해제, 자동 판정을 따름)
+         * @description 자동 판정(RecommendSafetyPolicy)과 무관하게 추천에서 빼거나 넣는다. 영화 검색·상세·기록에는 영향이 없다. 저장 후 해당 영화의 제외 여부만 인덱스에 반영하고 추천 캐시를 비운다(전체 재생성 없음). 없는 영화 404. 감사 로그 MOVIE_RECOMMEND_OVERRIDE(이전 값 → 새 값).
+         */
+        patch: operations["changeRecommendOverride"];
         trace?: never;
     };
     "/api/wishes/me/{movieId}": {
@@ -851,6 +1130,40 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/users/{userId}/activities": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** 개인 활동 피드 조회 (티켓 피드) */
+        get: operations["getActivities"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/users/search": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** 사용자 검색 (닉네임 부분 일치, 2~20자) */
+        get: operations["searchUsers"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/users/me": {
         parameters: {
             query?: never;
@@ -868,6 +1181,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/users/me/theaters/recent": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** 내가 최근 기록한 극장 (최대 5곳, 폐업 제외) */
+        get: operations["getRecentTheaters"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/users/me/social-accounts": {
         parameters: {
             query?: never;
@@ -877,6 +1207,23 @@ export interface paths {
         };
         /** 연결된 소셜 계정 조회 */
         get: operations["getSocialAccounts"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/theaters/search": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** 기록용 극장 검색 (영업 중만, 띄어쓰기 단위 AND — 이름·체인·주소 부분 일치, 페이지 응답) */
+        get: operations["searchTheaters"];
         put?: never;
         post?: never;
         delete?: never;
@@ -911,6 +1258,46 @@ export interface paths {
         };
         /** 내 리뷰 단건 조회 */
         get: operations["getMyReview"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/recommendations/search": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * 자연어로 찾기 — 로그인 필수, 10편 + 결과 더 보기 1회(최대 20편), 사용자당 분당 10 · 일 200회(실제 임베딩 호출만 센다)
+         * @description page는 0 또는 1, 크기는 10 고정(size를 보내도 무시)이며 page ≥ 2는 빈 결과(last=true). 결과는 무작위로 섞지 않는 결정적 순위다. q는 정규화 후 2~100자. 초과 시 429 RECOMMENDATION_RATE_LIMITED + Retry-After. 임베딩 호출이 실패하거나 3초를 넘기면 취향 추천 결과로 대체하고 degraded=true(캐시하지 않음). '90분 이내' 같은 명시 상영시간 조건은 하드 필터, '짧은'은 가산점이며 conditions로 알려 준다.
+         */
+        get: operations["search"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/recommendations/for-you": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * 내 취향 추천 10편 묶음 — 비로그인 허용(게스트는 평이 좋고 알려진 영화 상위 풀의 묶음)
+         * @description 상위 후보 50편에서 점수 비례 무작위로 10편을 뽑아 묶음으로 준다. next=false(기본)는 같은 날·같은 취향 프로필이면 다시 들어와도 같은 묶음이고, next=true는 직전 3묶음을 뺀 새 묶음('다른 추천 보기'). 기록·찜이 바뀌면 새 묶음. 게스트는 서버에 상태가 없어 앞서 받은 영화 id를 exclude(콤마 구분, 최대 30개, 오래된 것이 앞)로 보낸다 - 로그인 사용자는 무시. 숫자가 아닌 exclude는 400 INVALID_TYPE_VALUE. 호출 제한 없음.
+         */
+        get: operations["forYou"];
         put?: never;
         post?: never;
         delete?: never;
@@ -962,6 +1349,26 @@ export interface paths {
         };
         /** 영화 상세 조회 */
         get: operations["getMovieDetail"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/movies/{movieId}/watch-providers": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * 어디서 볼 수 있나 (국내 시청 제공처, TMDB·JustWatch)
+         * @description 상세 응답과 분리된 별도 호출 - 실패해도 200 + 빈 응답. 서버 24시간 캐시. 출처(JustWatch) 표기 의무.
+         */
+        get: operations["getWatchProviders"];
         put?: never;
         post?: never;
         delete?: never;
@@ -1038,6 +1445,43 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/feed/strips": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** 팔로잉 스트립 목록 조회 (필름 스트립) */
+        get: operations["getStrips"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/export/download": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * 내보내기 ZIP 다운로드 (인증 없음 — 토큰이 인증, 1회용)
+         * @description 성공 200 application/zip. 토큰이 없거나 만료됐거나 이미 쓰였으면 구분 없이 410 + 짧은 HTML.
+         */
+        get: operations["download"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/box-office": {
         parameters: {
             query?: never;
@@ -1081,6 +1525,43 @@ export interface paths {
         };
         /** 관리자 회원 상세 — 활동 지표 8종 포함 */
         get: operations["getUser"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/admin/theaters": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** 관리자 극장 목록 — 이름·주소 검색, 체인·예매 링크 유무·폐업 필터. 숨긴 극장도 포함 (page 0-based) */
+        get: operations["getTheaters"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/admin/recommendations/debug": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * 추천 점수 분해 — 사용자 프로필(평가/찜 기여 분리)과 결과 100편의 항별 점수 (q가 있으면 자연어)
+         * @description 캐시를 쓰지 않고 항상 계산하며 호출 제한에 세지 않는다. 가중치 튜닝용. 특정 회원의 취향 정보 열람이므로 감사 로그 RECOMMENDATION_DEBUG_VIEW.
+         */
+        get: operations["debug"];
         put?: never;
         post?: never;
         delete?: never;
@@ -1140,6 +1621,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/admin/movies/{movieId}/posters": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** 포스터 후보 — TMDB images를 그때그때 조회(한국어→글자 없음→영어, 평점순 최대 50장). TMDB 오류는 502 */
+        get: operations["getPosters"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/admin/movies/{movieId}/credits": {
         parameters: {
             query?: never;
@@ -1191,6 +1689,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/admin/box-office/unlinked": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** 박스오피스 미연결 목록 — KOFIC 코드로 묶음, 최근 순위 진입일 순 (page 0-based) */
+        get: operations["getUnlinked"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/admin/audit-logs": {
         parameters: {
             query?: never;
@@ -1229,6 +1744,48 @@ export interface paths {
 export type webhooks = Record<string, never>;
 export interface components {
     schemas: {
+        ProfileUpdateRequest: {
+            nickname: string;
+            bio?: string;
+            /** @enum {string} */
+            privacySetting: "PRIVATE" | "FRIENDS" | "PUBLIC";
+            favoriteMovieIds: number[];
+            /** Format: int64 */
+            coverMovieId?: number;
+        };
+        FavoriteMovieResponse: {
+            /** Format: int64 */
+            movieId?: number;
+            title?: string;
+            posterPath?: string;
+            backdropPath?: string;
+        };
+        ProfileCoverResponse: {
+            /** @enum {string} */
+            type?: "MOVIE" | "IMAGE";
+            imageUrl?: string;
+            backdropPath?: string;
+            /** Format: int64 */
+            movieId?: number;
+            title?: string;
+        };
+        UserResponse: {
+            /** Format: int64 */
+            id?: number;
+            email?: string;
+            nickname?: string;
+            profileImage?: string;
+            /** @enum {string} */
+            privacySetting?: "PRIVATE" | "FRIENDS" | "PUBLIC";
+            /** Format: date-time */
+            createdAt?: string;
+            bio?: string;
+            favoriteMovies?: components["schemas"]["FavoriteMovieResponse"][];
+            cover?: components["schemas"]["ProfileCoverResponse"];
+        };
+        ProfileImageConfirmRequest: {
+            key: string;
+        };
         ReviewWriteRequest: {
             content: string;
         };
@@ -1250,9 +1807,74 @@ export interface components {
             /** Format: date-time */
             updatedAt?: string;
         };
+        AdminMoviePosterPinRequest: {
+            filePath: string;
+        };
+        AdminMovieDetailResponse: {
+            /** Format: int64 */
+            movieId?: number;
+            /** Format: int64 */
+            tmdbId?: number;
+            koficMovieCd?: string;
+            title?: string;
+            titleKo?: string;
+            originalTitle?: string;
+            /** Format: date */
+            releaseDate?: string;
+            posterPath?: string;
+            posterPathPinned?: string;
+            voteAverage?: number;
+            /** Format: int32 */
+            voteCount?: number;
+            /** Format: date-time */
+            createdAt?: string;
+            /** Format: date-time */
+            syncedAt?: string;
+            overview?: string;
+            /** Format: int32 */
+            runtime?: number;
+            backdropPath?: string;
+            genres?: string[];
+            countries?: string[];
+            directors?: string[];
+            /** Format: int64 */
+            castCount?: number;
+            usage?: components["schemas"]["Usage"];
+            recommendSafety?: components["schemas"]["RecommendSafety"];
+        };
+        RecommendSafety: {
+            autoBlocked?: boolean;
+            reasons?: string[];
+            /** @enum {string} */
+            override?: "BLOCK" | "ALLOW";
+        };
+        Usage: {
+            /** Format: int64 */
+            watchRecordCount?: number;
+            /** Format: int64 */
+            reviewCount?: number;
+            /** Format: int64 */
+            wishCount?: number;
+            /** Format: int64 */
+            collectionCount?: number;
+        };
+        WithdrawalRequest: {
+            password?: string;
+        };
         SocialLinkRequest: {
             idToken: string;
             nonce: string;
+        };
+        ProfileImageUploadUrlResponse: {
+            uploadUrl?: string;
+            key?: string;
+            /** Format: date-time */
+            expiresAt?: string;
+        };
+        ExportLinkResponse: {
+            downloadUrl?: string;
+            /** Format: date-time */
+            expiresAt?: string;
         };
         WatchRecordCreateRequest: {
             /** Format: int64 */
@@ -1260,17 +1882,28 @@ export interface components {
             /** Format: date */
             watchDate?: string;
             /** @enum {string} */
-            watchType?: "THEATER" | "OTT" | "ETC";
+            watchType?: "THEATER" | "OTT" | "ETC" | "TV" | "VOD" | "DISC";
             placeDetail?: string;
             /** Format: int64 */
             ottPlatformId?: number;
             rating?: number;
             privateReview?: string;
+            /** Format: int64 */
+            theaterId?: number;
         };
         OttPlatformResponse: {
             /** Format: int64 */
             id?: number;
             name?: string;
+            custom?: boolean;
+        };
+        TheaterSummaryResponse: {
+            /** Format: int64 */
+            id?: number;
+            name?: string;
+            chainName?: string;
+            address?: string;
+            closed?: boolean;
         };
         WatchRecordResponse: {
             /** Format: int64 */
@@ -1281,9 +1914,10 @@ export interface components {
             watchDate?: string;
             representative?: boolean;
             /** @enum {string} */
-            watchType?: "THEATER" | "OTT" | "ETC";
+            watchType?: "THEATER" | "OTT" | "ETC" | "TV" | "VOD" | "DISC";
             placeDetail?: string;
             ottPlatform?: components["schemas"]["OttPlatformResponse"];
+            theater?: components["schemas"]["TheaterSummaryResponse"];
             rating?: number;
             privateReview?: string;
         };
@@ -1297,31 +1931,6 @@ export interface components {
         MovieSyncResponse: {
             /** Format: int64 */
             movieId?: number;
-        };
-        CommentCreateRequest: {
-            /** @enum {string} */
-            targetType: "COLLECTION" | "REVIEW";
-            /** Format: int64 */
-            targetId: number;
-            content: string;
-        };
-        CommentAuthorResponse: {
-            /** Format: int64 */
-            userId?: number;
-            nickname?: string;
-            profileImage?: string;
-        };
-        CommentResponse: {
-            /** Format: int64 */
-            commentId?: number;
-            author?: components["schemas"]["CommentAuthorResponse"];
-            content?: string;
-            /** Format: date-time */
-            createdAt?: string;
-            /** Format: date-time */
-            updatedAt?: string;
-            editable?: boolean;
-            deletable?: boolean;
         };
         CollectionCreateRequest: {
             name: string;
@@ -1354,17 +1963,7 @@ export interface components {
             email: string;
             rawPassword: string;
             nickname: string;
-        };
-        UserResponse: {
-            /** Format: int64 */
-            id?: number;
-            email?: string;
-            nickname?: string;
-            profileImage?: string;
-            /** @enum {string} */
-            privacySetting?: "PRIVATE" | "FRIENDS" | "PUBLIC";
-            /** Format: date-time */
-            createdAt?: string;
+            agreeToTerms?: boolean;
         };
         ReissueRequest: {
             refreshToken: string;
@@ -1390,6 +1989,13 @@ export interface components {
             idToken: string;
             nonce: string;
         };
+        OAuthLoginResponse: {
+            accessToken?: string;
+            refreshToken?: string;
+            /** Format: int64 */
+            accessTokenExpiresIn?: number;
+            newUser?: boolean;
+        };
         NonceResponse: {
             nonce?: string;
             /** Format: int64 */
@@ -1402,45 +2008,138 @@ export interface components {
             email: string;
             password: string;
         };
-        AdminMovieDetailResponse: {
+        ClosedWithBooking: {
             /** Format: int64 */
-            movieId?: number;
-            /** Format: int64 */
-            tmdbId?: number;
-            koficMovieCd?: string;
-            title?: string;
-            titleKo?: string;
-            originalTitle?: string;
-            /** Format: date */
-            releaseDate?: string;
-            posterPath?: string;
-            voteAverage?: number;
-            /** Format: int32 */
-            voteCount?: number;
-            /** Format: date-time */
-            createdAt?: string;
-            /** Format: date-time */
-            syncedAt?: string;
-            overview?: string;
-            /** Format: int32 */
-            runtime?: number;
-            backdropPath?: string;
-            genres?: string[];
-            countries?: string[];
-            directors?: string[];
-            /** Format: int64 */
-            castCount?: number;
-            usage?: components["schemas"]["Usage"];
+            theaterId?: number;
+            sourceCode?: string;
+            name?: string;
+            bookingUrl?: string;
         };
-        Usage: {
-            /** Format: int64 */
-            watchRecordCount?: number;
-            /** Format: int64 */
-            reviewCount?: number;
-            /** Format: int64 */
-            wishCount?: number;
-            /** Format: int64 */
-            collectionCount?: number;
+        Coordinates: {
+            /** Format: int32 */
+            address?: number;
+            /** Format: int32 */
+            lot?: number;
+            /** Format: int32 */
+            tm?: number;
+            /** Format: int32 */
+            failed?: number;
+            /** Format: int32 */
+            kakaoErrors?: number;
+            tmCheck?: components["schemas"]["TmCheck"];
+            failures?: components["schemas"]["FailedGroup"][];
+        };
+        FailedGroup: {
+            sourceCode?: string;
+            name?: string;
+            roadAddress?: string;
+            lotAddress?: string;
+        };
+        MultiChainGroup: {
+            sourceCode?: string;
+            chains?: {
+                [key: string]: number;
+            };
+            names?: string[];
+        };
+        Outlier: {
+            sourceCode?: string;
+            name?: string;
+            /** Format: double */
+            meters?: number;
+        };
+        Renamed: {
+            sourceCode?: string;
+            before?: string;
+            after?: string;
+        };
+        SampleTheater: {
+            sourceCode?: string;
+            name?: string;
+            chainName?: string;
+            address?: string;
+            latitude?: number;
+            longitude?: number;
+            /** Format: int32 */
+            screenCount?: number;
+            coordinateSource?: string;
+        };
+        SplitNameGroup: {
+            sourceCode?: string;
+            /** Format: int32 */
+            rows?: number;
+            names?: {
+                [key: string]: number;
+            };
+            chosen?: string;
+        };
+        TheaterSeedReport: {
+            dryRun?: boolean;
+            /** Format: int32 */
+            totalRows?: number;
+            /** Format: int32 */
+            duplicateRows?: number;
+            salesStatusCounts?: {
+                [key: string]: number;
+            };
+            /** Format: int32 */
+            activeRows?: number;
+            shapeCounts?: {
+                [key: string]: number;
+            };
+            shapeExamples?: {
+                [key: string]: string[];
+            };
+            /** Format: int32 */
+            excludedByShape?: number;
+            /** Format: int32 */
+            theaterCount?: number;
+            chainCounts?: {
+                [key: string]: number;
+            };
+            otherChainNames?: string[];
+            splitNameGroups?: components["schemas"]["SplitNameGroup"][];
+            /** Format: int32 */
+            splitNameGroupTotal?: number;
+            multiChainGroups?: components["schemas"]["MultiChainGroup"][];
+            screenCountDistribution?: {
+                [key: string]: number;
+            };
+            coordinates?: components["schemas"]["Coordinates"];
+            samples?: components["schemas"]["SampleTheater"][];
+            /** Format: int32 */
+            newTheaters?: number;
+            /** Format: int32 */
+            closedTheaters?: number;
+            /** Format: int32 */
+            reopenedTheaters?: number;
+            /** Format: int32 */
+            massCloseHeld?: number;
+            closedWithBookingUrl?: components["schemas"]["ClosedWithBooking"][];
+            aborted?: boolean;
+            abortReason?: string;
+            /** Format: int32 */
+            geocodeReused?: number;
+            /** Format: int32 */
+            geocodeCalled?: number;
+            /** Format: int32 */
+            inserted?: number;
+            /** Format: int32 */
+            updated?: number;
+            /** Format: int32 */
+            renamed?: number;
+            renamedExamples?: components["schemas"]["Renamed"][];
+        };
+        TmCheck: {
+            /** Format: int32 */
+            compared?: number;
+            /** Format: double */
+            avgMeters?: number;
+            /** Format: double */
+            maxMeters?: number;
+            /** Format: int32 */
+            over100m?: number;
+            outliers?: components["schemas"]["Outlier"][];
         };
         MovieSeedResponse: {
             /** Format: int32 */
@@ -1464,9 +2163,36 @@ export interface components {
             /** Format: int32 */
             inserted?: number;
         };
+        EmbeddingSyncResponse: {
+            /** Format: int32 */
+            embedded?: number;
+            /** Format: int32 */
+            unchanged?: number;
+            /** Format: int32 */
+            failed?: number;
+            stoppedByRateLimit?: boolean;
+            /** Format: int64 */
+            lastProcessedId?: number;
+        };
         CountrySeedResponse: {
             /** Format: int32 */
             inserted?: number;
+        };
+        BoxOfficeUnlinkResponse: {
+            koficMovieCd?: string;
+            /** Format: int32 */
+            unlinkedRecords?: number;
+        };
+        BoxOfficeLinkRequest: {
+            /** Format: int64 */
+            movieId: number;
+        };
+        BoxOfficeLinkResponse: {
+            koficMovieCd?: string;
+            /** Format: int64 */
+            movieId?: number;
+            /** Format: int32 */
+            linkedRecords?: number;
         };
         BoxOfficeSyncResponse: {
             /** Format: int32 */
@@ -1491,15 +2217,14 @@ export interface components {
             /** Format: date */
             watchDate?: string;
             /** @enum {string} */
-            watchType?: "THEATER" | "OTT" | "ETC";
+            watchType?: "THEATER" | "OTT" | "ETC" | "TV" | "VOD" | "DISC";
             placeDetail?: string;
             /** Format: int64 */
             ottPlatformId?: number;
             rating?: number;
             privateReview?: string;
-        };
-        CommentUpdateRequest: {
-            content: string;
+            /** Format: int64 */
+            theaterId?: number;
         };
         CollectionUpdateRequest: {
             name: string;
@@ -1510,6 +2235,29 @@ export interface components {
         };
         CollectionOrderRequest: {
             collectionIds: number[];
+        };
+        AdminTheaterNameRequest: {
+            name?: string;
+        };
+        AdminTheaterResponse: {
+            /** Format: int64 */
+            theaterId?: number;
+            sourceCode?: string;
+            name?: string;
+            sourceName?: string;
+            nameOverride?: string;
+            chainName?: string;
+            address?: string;
+            latitude?: number;
+            longitude?: number;
+            /** Format: int32 */
+            screenCount?: number;
+            bookingUrl?: string;
+            /** Format: date-time */
+            closedAt?: string;
+        };
+        AdminTheaterBookingUrlRequest: {
+            bookingUrl?: string;
         };
         AdminPersonNameKoRequest: {
             nameKo?: string;
@@ -1527,6 +2275,10 @@ export interface components {
         };
         AdminMovieTitleKoRequest: {
             titleKo?: string;
+        };
+        RecommendOverrideRequest: {
+            /** @enum {string} */
+            override?: "BLOCK" | "ALLOW";
         };
         Pageable: {
             /** Format: int32 */
@@ -1783,7 +2535,7 @@ export interface components {
             watchDate?: string;
             rating?: number;
             /** @enum {string} */
-            watchType?: "THEATER" | "OTT" | "ETC";
+            watchType?: "THEATER" | "OTT" | "ETC" | "TV" | "VOD" | "DISC";
         };
         UserProfileResponse: {
             /** Format: int64 */
@@ -1798,6 +2550,10 @@ export interface components {
             followingCount?: number;
             following?: boolean;
             me?: boolean;
+            bio?: string;
+            favoriteMovies?: components["schemas"]["FavoriteMovieResponse"][];
+            cover?: components["schemas"]["ProfileCoverResponse"];
+            restricted?: boolean;
         };
         FollowUserResponse: {
             /** Format: int64 */
@@ -1832,6 +2588,69 @@ export interface components {
             first?: boolean;
             last?: boolean;
         };
+        ActivityPageResponse: {
+            /** Format: date-time */
+            asOf?: string;
+            content?: components["schemas"]["ActivityResponse"][];
+            nextCursor?: string;
+            hasNext?: boolean;
+        };
+        ActivityResponse: {
+            /** @enum {string} */
+            type?: "WATCH_RECORD" | "REVIEW" | "WISH" | "COLLECTION_CREATED" | "COLLECTION_MOVIES_ADDED" | "FOLLOW";
+            /** Format: date-time */
+            occurredAt?: string;
+            /** Format: int64 */
+            sourceId?: number;
+            movie?: components["schemas"]["MovieSummaryResponse"];
+            watch?: components["schemas"]["WatchDetail"];
+            reviewContent?: string;
+            collection?: components["schemas"]["CollectionDetail"];
+            added?: components["schemas"]["AddedMovies"];
+            followee?: components["schemas"]["FeedUserResponse"];
+        };
+        AddedMovies: {
+            /** Format: date */
+            groupDate?: string;
+            /** Format: int64 */
+            count?: number;
+            posters?: string[];
+        };
+        CollectionDetail: {
+            /** Format: int64 */
+            collectionId?: number;
+            name?: string;
+            /** Format: int64 */
+            movieCount?: number;
+            previewPosters?: string[];
+        };
+        FeedUserResponse: {
+            /** Format: int64 */
+            userId?: number;
+            nickname?: string;
+            profileImage?: string;
+        };
+        MovieSummaryResponse: {
+            /** Format: int64 */
+            id?: number;
+            title?: string;
+            posterPath?: string;
+            /** Format: date */
+            releaseDate?: string;
+        };
+        WatchDetail: {
+            /** Format: date */
+            watchDate?: string;
+            /** @enum {string} */
+            watchType?: "THEATER" | "OTT" | "ETC" | "TV" | "VOD" | "DISC";
+            placeDetail?: string;
+            ottPlatformName?: string;
+            ottPlatformCustom?: boolean;
+            theaterName?: string;
+            rating?: number;
+            /** Format: int32 */
+            recordCount?: number;
+        };
         SocialAccountResponse: {
             /** @enum {string} */
             provider?: "KAKAO" | "GOOGLE";
@@ -1841,6 +2660,19 @@ export interface components {
         SocialAccountsResponse: {
             hasPassword?: boolean;
             socialAccounts?: components["schemas"]["SocialAccountResponse"][];
+        };
+        PageResponseTheaterSummaryResponse: {
+            content?: components["schemas"]["TheaterSummaryResponse"][];
+            /** Format: int32 */
+            page?: number;
+            /** Format: int32 */
+            size?: number;
+            /** Format: int64 */
+            totalElements?: number;
+            /** Format: int32 */
+            totalPages?: number;
+            first?: boolean;
+            last?: boolean;
         };
         TheaterResponse: {
             /** Format: int64 */
@@ -1856,6 +2688,60 @@ export interface components {
             seatCount?: number;
             /** Format: int64 */
             distanceMeters?: number;
+            bookingUrl?: string;
+            /** @enum {string} */
+            bookingSource?: "THEATER" | "CHAIN";
+        };
+        AppliedConditionResponse: {
+            /** @enum {string} */
+            type?: "RUNTIME_MAX" | "RUNTIME_PREFER_SHORT" | "RUNTIME_PREFER_LONG" | "COUNTRY" | "EXCLUDE_COUNTRY" | "RELEASE_PERIOD" | "EXCLUDE_GENRE" | "AVOID_MOOD" | "FAMILY_SAFE";
+            /** Format: int32 */
+            value?: number;
+            label?: string;
+            text?: string;
+        };
+        PageResponseRecommendedMovieResponse: {
+            content?: components["schemas"]["RecommendedMovieResponse"][];
+            /** Format: int32 */
+            page?: number;
+            /** Format: int32 */
+            size?: number;
+            /** Format: int64 */
+            totalElements?: number;
+            /** Format: int32 */
+            totalPages?: number;
+            first?: boolean;
+            last?: boolean;
+        };
+        RecommendReasonResponse: {
+            /** @enum {string} */
+            type?: "DIRECTOR" | "ACTOR" | "GENRE" | "COUNTRY" | "WISH_GENRE" | "WISH_COUNTRY" | "WISH_DIRECTOR" | "QUALITY" | "POPULARITY";
+            /** Format: int64 */
+            targetId?: number;
+            label?: string;
+            text?: string;
+        };
+        RecommendationResponse: {
+            movies?: components["schemas"]["PageResponseRecommendedMovieResponse"];
+            personalized?: boolean;
+            conditions?: components["schemas"]["AppliedConditionResponse"][];
+            degraded?: boolean;
+        };
+        RecommendedMovieResponse: {
+            /** Format: int64 */
+            id?: number;
+            title?: string;
+            posterPath?: string;
+            /** Format: date */
+            releaseDate?: string;
+            genres?: components["schemas"]["GenreResponse"][];
+            reason?: components["schemas"]["RecommendReasonResponse"];
+            wished?: boolean;
+        };
+        ForYouBatchResponse: {
+            movies?: components["schemas"]["RecommendedMovieResponse"][];
+            personalized?: boolean;
+            hasMore?: boolean;
         };
         MovieListItemResponse: {
             /** Format: int64 */
@@ -1889,6 +2775,17 @@ export interface components {
             /** @enum {string} */
             roleTier?: "LEAD" | "SUPPORTING" | "MINOR" | "EXTRA";
         };
+        BoxOfficeSnapshotResponse: {
+            /** Format: int64 */
+            audienceAcc?: number;
+            /** Format: date */
+            targetDate?: string;
+        };
+        CompanyResponse: {
+            /** Format: int64 */
+            id?: number;
+            name?: string;
+        };
         DirectorResponse: {
             /** Format: int64 */
             id?: number;
@@ -1902,6 +2799,7 @@ export interface components {
             tmdbId?: number;
             koficMovieCd?: string;
             title?: string;
+            originalTitle?: string;
             posterPath?: string;
             /** Format: date */
             releaseDate?: string;
@@ -1913,6 +2811,10 @@ export interface components {
             actors?: components["schemas"]["ActorResponse"][];
             directors?: components["schemas"]["DirectorResponse"][];
             ratings?: components["schemas"]["MovieRatingsResponse"];
+            /** @enum {string} */
+            krCertification?: "ALL" | "AGE_12" | "AGE_15" | "AGE_18" | "RESTRICTED";
+            companies?: components["schemas"]["CompanyResponse"][];
+            boxOffice?: components["schemas"]["BoxOfficeSnapshotResponse"];
         };
         MovieRatingsResponse: {
             tmdb?: components["schemas"]["RatingSummary"];
@@ -1922,6 +2824,18 @@ export interface components {
             average?: number;
             /** Format: int64 */
             count?: number;
+        };
+        ProviderResponse: {
+            /** Format: int64 */
+            providerId?: number;
+            name?: string;
+            logoPath?: string;
+        };
+        WatchProvidersResponse: {
+            link?: string;
+            flatrate?: components["schemas"]["ProviderResponse"][];
+            rent?: components["schemas"]["ProviderResponse"][];
+            buy?: components["schemas"]["ProviderResponse"][];
         };
         PageResponseReviewResponse: {
             content?: components["schemas"]["ReviewResponse"][];
@@ -1961,14 +2875,6 @@ export interface components {
             /** Format: date */
             releaseDate?: string;
         };
-        MovieSummaryResponse: {
-            /** Format: int64 */
-            id?: number;
-            title?: string;
-            posterPath?: string;
-            /** Format: date */
-            releaseDate?: string;
-        };
         PageResponseMovieSummaryResponse: {
             content?: components["schemas"]["MovieSummaryResponse"][];
             /** Format: int32 */
@@ -1982,18 +2888,23 @@ export interface components {
             first?: boolean;
             last?: boolean;
         };
-        PageResponseCommentResponse: {
-            content?: components["schemas"]["CommentResponse"][];
+        FeedStripResponse: {
+            user?: components["schemas"]["FeedUserResponse"];
+            /** Format: date-time */
+            lastActivityAt?: string;
             /** Format: int32 */
-            page?: number;
-            /** Format: int32 */
-            size?: number;
+            newCount?: number;
+            frames?: components["schemas"]["ActivityResponse"][];
+        };
+        FeedStripsResponse: {
+            /** Format: date-time */
+            asOf?: string;
+            me?: components["schemas"]["FeedStripResponse"];
+            content?: components["schemas"]["FeedStripResponse"][];
+            nextCursor?: string;
+            hasNext?: boolean;
             /** Format: int64 */
-            totalElements?: number;
-            /** Format: int32 */
-            totalPages?: number;
-            first?: boolean;
-            last?: boolean;
+            newFollowerCount?: number;
         };
         CollectionMovieListItemResponse: {
             /** Format: int64 */
@@ -2103,6 +3014,131 @@ export interface components {
             updatedAt?: string;
             activity?: components["schemas"]["Activity"];
         };
+        PageResponseAdminTheaterResponse: {
+            content?: components["schemas"]["AdminTheaterResponse"][];
+            /** Format: int32 */
+            page?: number;
+            /** Format: int32 */
+            size?: number;
+            /** Format: int64 */
+            totalElements?: number;
+            /** Format: int32 */
+            totalPages?: number;
+            first?: boolean;
+            last?: boolean;
+        };
+        Axis: {
+            /** Format: double */
+            lambda?: number;
+            /** Format: int32 */
+            size?: number;
+            top?: components["schemas"]["Entry"][];
+        };
+        Draw: {
+            /** Format: int32 */
+            poolSize?: number;
+            /** Format: int32 */
+            batchSize?: number;
+            /** Format: double */
+            temperature?: number;
+            /** Format: int32 */
+            releasedBatches?: number;
+            recentBatches?: number[][];
+        };
+        Entry: {
+            /** Format: int64 */
+            id?: number;
+            name?: string;
+            /** Format: double */
+            evaluation?: number;
+            /** Format: double */
+            interest?: number;
+            /** Format: double */
+            combined?: number;
+        };
+        Exclusions: {
+            /** Format: int32 */
+            watched?: number;
+            /** Format: int32 */
+            wished?: number;
+            /** Format: int32 */
+            unreleased?: number;
+            /** Format: int32 */
+            belowVoteFloor?: number;
+            /** Format: int32 */
+            runtimeFilter?: number;
+            /** Format: int32 */
+            directorCap?: number;
+            /** Format: int32 */
+            countryFilter?: number;
+            /** Format: int32 */
+            releasePeriodFilter?: number;
+            /** Format: int32 */
+            excludedGenre?: number;
+            /** Format: int32 */
+            unsafe?: number;
+            /** Format: int32 */
+            certificationFilter?: number;
+        };
+        Movie: {
+            /** Format: int64 */
+            id?: number;
+            title?: string;
+            /** Format: double */
+            sim?: number;
+            /** Format: double */
+            genreTerm?: number;
+            /** Format: double */
+            countryTerm?: number;
+            /** Format: double */
+            personTerm?: number;
+            personKind?: string;
+            /** Format: int64 */
+            personId?: number;
+            personName?: string;
+            /** Format: double */
+            taste?: number;
+            /** Format: double */
+            quality?: number;
+            /** Format: double */
+            popularity?: number;
+            /** Format: double */
+            runtimeBonus?: number;
+            /** Format: double */
+            negativeSim?: number;
+            /** Format: double */
+            score?: number;
+            reason?: components["schemas"]["RecommendReasonResponse"];
+            wished?: boolean;
+            /** Format: double */
+            extractionKey?: number;
+            batchStatus?: string;
+            /** Format: int32 */
+            recentBatchIndex?: number;
+        };
+        Profile: {
+            /** Format: double */
+            meanRating?: number;
+            personalized?: boolean;
+            /** Format: int32 */
+            watchedCount?: number;
+            /** Format: int32 */
+            wishedCount?: number;
+            genres?: components["schemas"]["Axis"];
+            countries?: components["schemas"]["Axis"];
+            directors?: components["schemas"]["Axis"];
+            actors?: components["schemas"]["Axis"];
+        };
+        RecommendationDebugResponse: {
+            /** Format: int64 */
+            userId?: number;
+            query?: string;
+            conditions?: components["schemas"]["AppliedConditionResponse"][];
+            profile?: components["schemas"]["Profile"];
+            movies?: components["schemas"]["Movie"][];
+            exclusions?: components["schemas"]["Exclusions"];
+            draw?: components["schemas"]["Draw"];
+        };
         PageResponseAdminPersonSummaryResponse: {
             content?: components["schemas"]["AdminPersonSummaryResponse"][];
             /** Format: int32 */
@@ -2148,6 +3184,21 @@ export interface components {
             totalPages?: number;
             first?: boolean;
             last?: boolean;
+        };
+        AdminMoviePostersResponse: {
+            current?: string;
+            pinned?: string;
+            candidates?: components["schemas"]["Candidate"][];
+        };
+        Candidate: {
+            filePath?: string;
+            language?: string;
+            /** Format: int32 */
+            width?: number;
+            /** Format: int32 */
+            height?: number;
+            /** Format: double */
+            voteAverage?: number;
         };
         AdminCreditItem: {
             /** Format: int64 */
@@ -2225,6 +3276,33 @@ export interface components {
             /** Format: int64 */
             personsMissingKorean?: number;
         };
+        AdminUnlinkedBoxOfficeResponse: {
+            koficMovieCd?: string;
+            title?: string;
+            /** Format: date */
+            openDate?: string;
+            /** Format: date */
+            firstDate?: string;
+            /** Format: date */
+            lastDate?: string;
+            /** Format: int32 */
+            bestRank?: number;
+            /** Format: int64 */
+            recordCount?: number;
+        };
+        PageResponseAdminUnlinkedBoxOfficeResponse: {
+            content?: components["schemas"]["AdminUnlinkedBoxOfficeResponse"][];
+            /** Format: int32 */
+            page?: number;
+            /** Format: int32 */
+            size?: number;
+            /** Format: int64 */
+            totalElements?: number;
+            /** Format: int32 */
+            totalPages?: number;
+            first?: boolean;
+            last?: boolean;
+        };
         AdminAuditLogResponse: {
             /** Format: int64 */
             id?: number;
@@ -2232,9 +3310,9 @@ export interface components {
             adminUserId?: number;
             adminEmail?: string;
             /** @enum {string} */
-            action?: "USER_LIST_VIEW" | "USER_DETAIL_VIEW" | "MOVIE_RESYNC" | "MOVIE_RESYNC_BATCH" | "MOVIE_SEED_BOX_OFFICE" | "MOVIE_SEED_DISCOVER" | "GENRE_SEED" | "COUNTRY_SEED" | "BOX_OFFICE_SYNC" | "BOX_OFFICE_REMATCH" | "PERSON_NAME_KO_UPDATE" | "MOVIE_TITLE_KO_UPDATE";
+            action?: "USER_LIST_VIEW" | "USER_DETAIL_VIEW" | "MOVIE_RESYNC" | "MOVIE_RESYNC_BATCH" | "MOVIE_SEED_BOX_OFFICE" | "MOVIE_SEED_DISCOVER" | "GENRE_SEED" | "COUNTRY_SEED" | "BOX_OFFICE_SYNC" | "THEATER_SEED" | "THEATER_BOOKING_URL_UPDATE" | "BOX_OFFICE_REMATCH" | "PERSON_NAME_KO_UPDATE" | "MOVIE_TITLE_KO_UPDATE" | "EMBEDDING_SYNC" | "RECOMMENDATION_DEBUG_VIEW" | "MOVIE_RECOMMEND_OVERRIDE" | "BOX_OFFICE_LINK" | "BOX_OFFICE_UNLINK" | "MOVIE_POSTER_PIN" | "MOVIE_POSTER_UNPIN" | "THEATER_NAME_UPDATE";
             /** @enum {string} */
-            targetType?: "USER" | "MOVIE" | "PERSON";
+            targetType?: "USER" | "MOVIE" | "PERSON" | "THEATER";
             /** Format: int64 */
             targetId?: number;
             detail?: {
@@ -2257,6 +3335,10 @@ export interface components {
             first?: boolean;
             last?: boolean;
         };
+        AdminMoviePosterUnpinResponse: {
+            movie?: components["schemas"]["AdminMovieDetailResponse"];
+            resynced?: boolean;
+        };
     };
     responses: never;
     parameters: never;
@@ -2266,6 +3348,118 @@ export interface components {
 }
 export type $defs = Record<string, never>;
 export interface operations {
+    updateProfile: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ProfileUpdateRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["UserResponse"];
+                };
+            };
+        };
+    };
+    confirmProfileImage: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ProfileImageConfirmRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["UserResponse"];
+                };
+            };
+        };
+    };
+    removeProfileImage: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["UserResponse"];
+                };
+            };
+        };
+    };
+    confirmCoverImage: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ProfileImageConfirmRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["UserResponse"];
+                };
+            };
+        };
+    };
+    removeCoverImage: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["UserResponse"];
+                };
+            };
+        };
+    };
     writeReview: {
         parameters: {
             query?: never;
@@ -2312,6 +3506,54 @@ export interface operations {
             };
         };
     };
+    pinPoster: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                movieId: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AdminMoviePosterPinRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["AdminMovieDetailResponse"];
+                };
+            };
+        };
+    };
+    unpinPoster: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                movieId: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["AdminMoviePosterUnpinResponse"];
+                };
+            };
+        };
+    };
     follow: {
         parameters: {
             query?: never;
@@ -2339,6 +3581,46 @@ export interface operations {
             path: {
                 userId: number;
             };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    withdraw: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "application/json": components["schemas"]["WithdrawalRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    agreeToTerms: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
             cookie?: never;
         };
         requestBody?: never;
@@ -2393,6 +3675,66 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content?: never;
+            };
+        };
+    };
+    issueProfileImageUploadUrl: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["ProfileImageUploadUrlResponse"];
+                };
+            };
+        };
+    };
+    issueLink: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["ExportLinkResponse"];
+                };
+            };
+        };
+    };
+    issueCoverImageUploadUrl: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["ProfileImageUploadUrlResponse"];
+                };
             };
         };
     };
@@ -2462,54 +3804,6 @@ export interface operations {
                 };
                 content: {
                     "*/*": components["schemas"]["MovieSyncResponse"];
-                };
-            };
-        };
-    };
-    getComments: {
-        parameters: {
-            query: {
-                targetType: "COLLECTION" | "REVIEW";
-                targetId: number;
-                pageable: components["schemas"]["Pageable"];
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "*/*": components["schemas"]["PageResponseCommentResponse"];
-                };
-            };
-        };
-    };
-    createComment: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["CommentCreateRequest"];
-            };
-        };
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "*/*": components["schemas"]["CommentResponse"];
                 };
             };
         };
@@ -2723,7 +4017,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "*/*": components["schemas"]["TokenResponse"];
+                    "*/*": components["schemas"]["OAuthLoginResponse"];
                 };
             };
         };
@@ -2770,6 +4064,24 @@ export interface operations {
             };
         };
     };
+    logoutAll: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
     login: {
         parameters: {
             query?: never;
@@ -2790,6 +4102,29 @@ export interface operations {
                 };
                 content: {
                     "*/*": components["schemas"]["TokenResponse"];
+                };
+            };
+        };
+    };
+    seed: {
+        parameters: {
+            query?: {
+                dryRun?: boolean;
+                allowMassClose?: boolean;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["TheaterSeedReport"];
                 };
             };
         };
@@ -2908,6 +4243,29 @@ export interface operations {
             };
         };
     };
+    syncEmbeddings: {
+        parameters: {
+            query?: {
+                limit?: number;
+                afterId?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["EmbeddingSyncResponse"];
+                };
+            };
+        };
+    };
     seedCountries: {
         parameters: {
             query?: never;
@@ -2924,6 +4282,54 @@ export interface operations {
                 };
                 content: {
                     "*/*": components["schemas"]["CountrySeedResponse"];
+                };
+            };
+        };
+    };
+    unlink: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                koficMovieCd: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["BoxOfficeUnlinkResponse"];
+                };
+            };
+        };
+    };
+    link: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                koficMovieCd: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["BoxOfficeLinkRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["BoxOfficeLinkResponse"];
                 };
             };
         };
@@ -3108,50 +4514,6 @@ export interface operations {
             };
         };
     };
-    deleteComment: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                commentId: number;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    editComment: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                commentId: number;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["CommentUpdateRequest"];
-            };
-        };
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
     deleteCollection: {
         parameters: {
             query?: never;
@@ -3244,6 +4606,58 @@ export interface operations {
             };
         };
     };
+    changeName: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                theaterId: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AdminTheaterNameRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["AdminTheaterResponse"];
+                };
+            };
+        };
+    };
+    changeBookingUrl: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                theaterId: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AdminTheaterBookingUrlRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["AdminTheaterResponse"];
+                };
+            };
+        };
+    };
     changeNameKo: {
         parameters: {
             query?: never;
@@ -3293,6 +4707,30 @@ export interface operations {
                 content: {
                     "*/*": components["schemas"]["AdminMovieDetailResponse"];
                 };
+            };
+        };
+    };
+    changeRecommendOverride: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                movieId: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["RecommendOverrideRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
             };
         };
     };
@@ -3587,6 +5025,54 @@ export interface operations {
             };
         };
     };
+    getActivities: {
+        parameters: {
+            query?: {
+                cursor?: string;
+                size?: number;
+            };
+            header?: never;
+            path: {
+                userId: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["ActivityPageResponse"];
+                };
+            };
+        };
+    };
+    searchUsers: {
+        parameters: {
+            query: {
+                q: string;
+                pageable: components["schemas"]["Pageable"];
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["PageResponseFollowUserResponse"];
+                };
+            };
+        };
+    };
     getMe: {
         parameters: {
             query?: never;
@@ -3607,6 +5093,26 @@ export interface operations {
             };
         };
     };
+    getRecentTheaters: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["TheaterSummaryResponse"][];
+                };
+            };
+        };
+    };
     getSocialAccounts: {
         parameters: {
             query?: never;
@@ -3623,6 +5129,30 @@ export interface operations {
                 };
                 content: {
                     "*/*": components["schemas"]["SocialAccountsResponse"];
+                };
+            };
+        };
+    };
+    searchTheaters: {
+        parameters: {
+            query: {
+                q: string;
+                page?: number;
+                size?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["PageResponseTheaterSummaryResponse"];
                 };
             };
         };
@@ -3670,6 +5200,52 @@ export interface operations {
                 };
                 content: {
                     "*/*": components["schemas"]["ReviewResponse"];
+                };
+            };
+        };
+    };
+    search: {
+        parameters: {
+            query: {
+                q: string;
+                pageable: components["schemas"]["Pageable"];
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["RecommendationResponse"];
+                };
+            };
+        };
+    };
+    forYou: {
+        parameters: {
+            query?: {
+                next?: boolean;
+                exclude?: number[];
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["ForYouBatchResponse"];
                 };
             };
         };
@@ -3734,6 +5310,28 @@ export interface operations {
                 };
                 content: {
                     "*/*": components["schemas"]["MovieDetailResponse"];
+                };
+            };
+        };
+    };
+    getWatchProviders: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                movieId: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["WatchProvidersResponse"];
                 };
             };
         };
@@ -3832,6 +5430,52 @@ export interface operations {
             };
         };
     };
+    getStrips: {
+        parameters: {
+            query?: {
+                scope?: "FOLLOWING" | "ALL";
+                cursor?: string;
+                size?: number;
+                seenAfter?: string;
+                followersSeenAfter?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["FeedStripsResponse"];
+                };
+            };
+        };
+    };
+    download: {
+        parameters: {
+            query?: {
+                token?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
     getBoxOffice: {
         parameters: {
             query: {
@@ -3897,6 +5541,56 @@ export interface operations {
                 };
                 content: {
                     "*/*": components["schemas"]["AdminUserDetailResponse"];
+                };
+            };
+        };
+    };
+    getTheaters: {
+        parameters: {
+            query: {
+                query?: string;
+                chain?: string;
+                hasBookingUrl?: boolean;
+                closed?: boolean;
+                nameOverridden?: boolean;
+                pageable: components["schemas"]["Pageable"];
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["PageResponseAdminTheaterResponse"];
+                };
+            };
+        };
+    };
+    debug: {
+        parameters: {
+            query: {
+                userId: number;
+                q?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["RecommendationDebugResponse"];
                 };
             };
         };
@@ -3972,6 +5666,28 @@ export interface operations {
             };
         };
     };
+    getPosters: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                movieId: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["AdminMoviePostersResponse"];
+                };
+            };
+        };
+    };
     getMovieCredits: {
         parameters: {
             query?: never;
@@ -4036,11 +5752,33 @@ export interface operations {
             };
         };
     };
+    getUnlinked: {
+        parameters: {
+            query: {
+                pageable: components["schemas"]["Pageable"];
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["PageResponseAdminUnlinkedBoxOfficeResponse"];
+                };
+            };
+        };
+    };
     getAuditLogs: {
         parameters: {
             query: {
-                action?: "USER_LIST_VIEW" | "USER_DETAIL_VIEW" | "MOVIE_RESYNC" | "MOVIE_RESYNC_BATCH" | "MOVIE_SEED_BOX_OFFICE" | "MOVIE_SEED_DISCOVER" | "GENRE_SEED" | "COUNTRY_SEED" | "BOX_OFFICE_SYNC" | "BOX_OFFICE_REMATCH" | "PERSON_NAME_KO_UPDATE" | "MOVIE_TITLE_KO_UPDATE";
-                targetType?: "USER" | "MOVIE" | "PERSON";
+                action?: "USER_LIST_VIEW" | "USER_DETAIL_VIEW" | "MOVIE_RESYNC" | "MOVIE_RESYNC_BATCH" | "MOVIE_SEED_BOX_OFFICE" | "MOVIE_SEED_DISCOVER" | "GENRE_SEED" | "COUNTRY_SEED" | "BOX_OFFICE_SYNC" | "THEATER_SEED" | "THEATER_BOOKING_URL_UPDATE" | "BOX_OFFICE_REMATCH" | "PERSON_NAME_KO_UPDATE" | "MOVIE_TITLE_KO_UPDATE" | "EMBEDDING_SYNC" | "RECOMMENDATION_DEBUG_VIEW" | "MOVIE_RECOMMEND_OVERRIDE" | "BOX_OFFICE_LINK" | "BOX_OFFICE_UNLINK" | "MOVIE_POSTER_PIN" | "MOVIE_POSTER_UNPIN" | "THEATER_NAME_UPDATE";
+                targetType?: "USER" | "MOVIE" | "PERSON" | "THEATER";
                 targetId?: number;
                 adminUserId?: number;
                 from?: string;
