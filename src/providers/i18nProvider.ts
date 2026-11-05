@@ -17,6 +17,8 @@ const KO: Record<string, string> = {
   'movies.titles.show': '영화 상세',
   'audit-logs.titles.list': '감사 로그',
   'persons.titles.list': '인물',
+  'box-office.titles.list': '박스오피스 미연결',
+  'theaters.titles.list': '극장',
   'dashboard.titles.list': '대시보드',
 }
 

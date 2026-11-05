@@ -8,8 +8,10 @@ import { ApiError } from '../../api/client'
 import { endpoints } from '../../api/endpoints'
 import type { AdminMovieDetail } from '../../api/types'
 import { PosterSize, tmdbImageUrl, tmdbMovieUrl } from '../../constants/tmdb'
+import { LinkMovieModal } from '../box-office/LinkMovieModal'
 import { RecentAuditLogs } from '../audit/RecentAuditLogs'
 import { MovieCredits } from './MovieCredits'
+import { PosterTab } from './PosterTab'
 import { TitleKoEditor } from './TitleKoEditor'
 
 const fmt = (v?: string) => (v ? dayjs(v).format('YYYY-MM-DD HH:mm') : '-')
@@ -41,6 +43,50 @@ export function MovieShow() {
   const [refreshed, setRefreshed] = useState<AdminMovieDetail | null>(null)
 
   const movie = refreshed ?? query.data?.data
+  // 연결 해제 직후 연결 대화상자를 연다(admin-spec 17-3 — 05:30 자동 재매칭이 같은 영화를 다시 붙일 수 있어, 해제는 "다른 영화로 다시 연결"의 중간 단계)
+  const [relinkCd, setRelinkCd] = useState<string | null>(null)
+
+  const refreshAfterChange = async (saved: AdminMovieDetail) => {
+    setRefreshed(saved)
+    await invalidate({ resource: 'audit-logs', invalidates: ['list'] })
+    await invalidate({ resource: 'movies', invalidates: ['list', 'detail'] })
+  }
+
+  const unlinkKofic = () => {
+    const code = movie?.koficMovieCd
+    if (!code) return
+    modal.confirm({
+      title: `KOFIC 코드 ${code} 연결을 해제할까요?`,
+      content: '이 코드의 모든 박스오피스 기록이 미연결로 돌아갑니다. 해제 뒤 다른 영화로 다시 연결할 수 있습니다.',
+      okText: '연결 해제',
+      okButtonProps: { danger: true },
+      cancelText: '취소',
+      onOk: async () => {
+        try {
+          await mutateAsync({
+            url: endpoints.adminBoxOfficeUnlink(code),
+            method: 'post',
+            values: {},
+            successNotification: false,
+            errorNotification: false,
+          })
+          message.success('연결을 해제했습니다.')
+          if (movie) await refreshAfterChange({ ...movie, koficMovieCd: undefined })
+          setRelinkCd(code)
+        } catch (e) {
+          message.error(e instanceof ApiError ? e.message : '연결 해제에 실패했습니다.')
+        }
+      },
+    })
+  }
+
+  const onRelinked = async () => {
+    setRelinkCd(null)
+    // 코드가 어느 영화에 붙었는지 모르므로(이 영화일 수도, 다른 영화일 수도) 이 화면은 서버 값을 다시 받는다
+    setRefreshed(null)
+    await invalidate({ resource: 'movies', invalidates: ['list', 'detail'] })
+    await query.refetch()
+  }
 
   const resync = () =>
     modal.confirm({
@@ -129,7 +175,18 @@ export function MovieShow() {
                 <Descriptions.Item label="평점">
                   {movie.voteAverage != null ? `${movie.voteAverage} (${movie.voteCount ?? 0}표)` : '-'}
                 </Descriptions.Item>
-                <Descriptions.Item label="KOFIC 코드">{movie.koficMovieCd ?? '-'}</Descriptions.Item>
+                <Descriptions.Item label="연결된 KOFIC 코드">
+                  {movie.koficMovieCd ? (
+                    <Space>
+                      {movie.koficMovieCd}
+                      <Button size="small" danger onClick={unlinkKofic}>
+                        연결 해제
+                      </Button>
+                    </Space>
+                  ) : (
+                    '-'
+                  )}
+                </Descriptions.Item>
                 <Descriptions.Item label="등록일">{fmt(movie.createdAt)}</Descriptions.Item>
                 <Descriptions.Item label="마지막 동기화">
                   {movie.syncedAt ? fmt(movie.syncedAt) : <span style={{ opacity: 0.55 }}>기록 없음(도입 전)</span>}
@@ -172,6 +229,12 @@ export function MovieShow() {
               ),
             },
             {
+              key: 'posters',
+              label: '포스터',
+              // 탭을 열 때만 TMDB 후보를 받는다(Tabs는 비활성 탭을 그리지 않는다)
+              children: <PosterTab movieId={id} onChanged={refreshAfterChange} />,
+            },
+            {
               key: 'credits',
               label: '출연진·감독',
               children: <MovieCredits movieId={id} />,
@@ -179,6 +242,7 @@ export function MovieShow() {
           ]}
         />
       )}
+      <LinkMovieModal koficMovieCd={relinkCd} onClose={() => setRelinkCd(null)} onLinked={onRelinked} />
     </Show>
   )
 }

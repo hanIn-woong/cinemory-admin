@@ -15,4 +15,13 @@ export const endpoints = {
   adminMovie: (id: string | number) => `/api/admin/movies/${id}`,
   adminMovieResync: (id: string | number) => `/api/admin/movies/${id}/resync`,
   adminMovieTitleKo: (id: string | number) => `/api/admin/movies/${id}/title-ko`,
+  adminMoviePosters: (id: string | number) => `/api/admin/movies/${id}/posters`,
+  adminMoviePoster: (id: string | number) => `/api/admin/movies/${id}/poster`,
+  adminBoxOfficeUnlinked: '/api/admin/box-office/unlinked',
+  adminBoxOfficeLink: (koficMovieCd: string) => `/api/admin/box-office/${encodeURIComponent(koficMovieCd)}/link`,
+  adminBoxOfficeUnlink: (koficMovieCd: string) => `/api/admin/box-office/${encodeURIComponent(koficMovieCd)}/unlink`,
+  adminTheaters: '/api/admin/theaters',
+  adminTheaterBookingUrl: (id: string | number) => `/api/admin/theaters/${id}/booking-url`,
+  adminTheaterName: (id: string | number) => `/api/admin/theaters/${id}/name`,
+  adminTheatersSeed: '/api/admin/theaters/seed',
 } as const
